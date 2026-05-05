@@ -155,7 +155,7 @@ export default function App() {
             DES vs. Modified DES (DSR)
           </h1>
           <p className="text-slate-400 mt-2 text-lg max-w-3xl">
-            A comprehensive visual summary of the Avalanche Effect. This dashboard demonstrates how introducing a Dynamic Shift Register (DSR) drastically improves cryptographic diffusion.
+            A comprehensive visual summary of the Avalanche Effect. This dashboard demonstrates how introducing a Dynamic Shift Routing (DSR) drastically improves cryptographic diffusion.
           </p>
         </header>
 
