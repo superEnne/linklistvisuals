@@ -154,11 +154,11 @@ export default function App() {
       <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
         <div className="grid md:grid-cols-3 gap-4">
           <div className="bg-[#14151a] p-6 rounded-xl border border-slate-800">
-            <h4 className="font-bold text-emerald-400 mb-3 flex items-center gap-2"><FastForward size={18} /> What it is</h4>
+            <h4 className="font-bold text-amber-400 mb-3 flex items-center gap-2"><FastForward size={18} /> What it is</h4>
             <p className="text-sm text-slate-400 leading-relaxed">Measuring how long it takes to encrypt and decrypt data, and calculating the throughput (e.g., Megabytes per second).</p>
           </div>
           <div className="bg-[#14151a] p-6 rounded-xl border border-slate-800">
-            <h4 className="font-bold text-emerald-400 mb-3 flex items-center gap-2"><Cpu size={18} /> How to test</h4>
+            <h4 className="font-bold text-amber-400 mb-3 flex items-center gap-2"><Cpu size={18} /> How to test</h4>
             <ol className="text-sm text-slate-400 list-decimal list-inside space-y-2 leading-relaxed">
               <li>Take a large file (e.g., 50MB).</li>
               <li>Start timer, encrypt with Original DES, stop timer.</li>
@@ -166,9 +166,9 @@ export default function App() {
             </ol>
           </div>
           <div className="bg-[#14151a] p-6 rounded-xl border border-slate-800">
-            <h4 className="font-bold text-emerald-400 mb-3 flex items-center gap-2"><Activity size={18} /> Why it's good</h4>
+            <h4 className="font-bold text-amber-400 mb-3 flex items-center gap-2"><Activity size={18} /> Why it's good</h4>
             <p className="text-sm text-slate-400 leading-relaxed">
-              Easy to measure using built-in timers (like <code className="text-emerald-300 bg-emerald-500/10 px-1.5 py-0.5 rounded font-mono">time.time()</code>) and produces easy-to-understand graphs.
+              Easy to measure using built-in timers (like <code className="text-amber-300 bg-amber-500/10 px-1.5 py-0.5 rounded font-mono">time.time()</code>) and produces easy-to-understand graphs.
             </p>
           </div>
         </div>
@@ -190,11 +190,11 @@ export default function App() {
                     <div className="w-16 text-sm text-slate-400 font-mono text-right">{item.originalTime.toFixed(3)}s</div>
                   </div>
                   <div className="flex items-center gap-4">
-                    <div className="w-28 text-sm text-emerald-400 text-right font-medium">Modified DES</div>
+                    <div className="w-28 text-sm text-amber-400 text-right font-medium">Modified DES</div>
                     <div className="flex-1 h-3 bg-slate-900 rounded-full overflow-hidden shadow-inner">
-                      <div className="bg-emerald-500 h-full rounded-full shadow-[0_0_10px_rgba(16,185,129,0.4)]" style={{ width: (item.modifiedTime / maxTime * 100) + '%' }}></div>
+                      <div className="bg-amber-500 h-full rounded-full shadow-[0_0_10px_rgba(245,158,11,0.4)]" style={{ width: (item.modifiedTime / maxTime * 100) + '%' }}></div>
                     </div>
-                    <div className="w-16 text-sm text-emerald-400 font-mono text-right font-medium">{item.modifiedTime.toFixed(3)}s</div>
+                    <div className="w-16 text-sm text-amber-400 font-mono text-right font-medium">{item.modifiedTime.toFixed(3)}s</div>
                   </div>
                 </div>
               </div>
@@ -214,7 +214,7 @@ export default function App() {
               <tr className="border-b border-slate-800">
                 <th className="text-left text-slate-500 font-semibold pb-3 pr-4">File Size</th>
                 <th className="text-right text-blue-400 font-semibold pb-3 px-4">Original DES</th>
-                <th className="text-right text-emerald-400 font-semibold pb-3 px-4">Modified DES</th>
+                <th className="text-right text-amber-400 font-semibold pb-3 px-4">Modified DES</th>
                 <th className="text-right text-slate-400 font-semibold pb-3 pl-4">Overhead</th>
               </tr>
             </thead>
@@ -225,7 +225,7 @@ export default function App() {
                   <tr key={idx} className="hover:bg-slate-800/40 transition-colors">
                     <td className="py-3 pr-4 text-slate-300 font-mono font-medium">{item.size}</td>
                     <td className="py-3 px-4 text-right text-blue-300 font-mono">{item.originalThroughput.toFixed(1)} MB/s</td>
-                    <td className="py-3 px-4 text-right text-emerald-300 font-mono">{item.modifiedThroughput.toFixed(1)} MB/s</td>
+                    <td className="py-3 px-4 text-right text-amber-300 font-mono">{item.modifiedThroughput.toFixed(1)} MB/s</td>
                     <td className="py-3 pl-4 text-right"><span className="text-amber-400 font-mono font-semibold">+{overhead}%</span></td>
                   </tr>
                 );
@@ -235,7 +235,7 @@ export default function App() {
         </div>
 
         <div className="bg-slate-900 border border-slate-800 rounded-xl p-6">
-          <h4 className="text-emerald-400 font-bold mb-2 flex items-center gap-2"><CheckCircle2 size={18} /> Key Observation from Benchmark</h4>
+          <h4 className="text-amber-400 font-bold mb-2 flex items-center gap-2"><CheckCircle2 size={18} /> Key Observation from Benchmark</h4>
           <p className="text-slate-300 text-sm leading-relaxed">
             Across all tested file sizes, the <strong>Modified DES (DSR)</strong> introduces less than <strong>2% additional processing time</strong> compared to Original DES. The DSR modification — a single left circular shift per round — is a single-clock CPU operation. This means our security improvement (earlier avalanche onset, stronger diffusion) comes at virtually no performance cost, making DSR a practical and deployable enhancement.
           </p>
@@ -277,13 +277,13 @@ export default function App() {
       <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
         <div className="grid md:grid-cols-3 gap-4">
           <div className="bg-[#14151a] p-6 rounded-xl border border-slate-800">
-            <h4 className="font-bold text-violet-400 mb-3 flex items-center gap-2"><BarChart2 size={18} /> What it is</h4>
+            <h4 className="font-bold text-amber-400 mb-3 flex items-center gap-2"><BarChart2 size={18} /> What it is</h4>
             <p className="text-sm text-slate-400 leading-relaxed">
               A score from <strong className="text-slate-300">0 to 8</strong> (for byte-level data) measuring how unpredictable your ciphertext is. A score of exactly <strong className="text-slate-300">8.0</strong> means perfect randomness.
             </p>
           </div>
           <div className="bg-[#14151a] p-6 rounded-xl border border-slate-800">
-            <h4 className="font-bold text-violet-400 mb-3 flex items-center gap-2"><Shuffle size={18} /> How to test</h4>
+            <h4 className="font-bold text-amber-400 mb-3 flex items-center gap-2"><Shuffle size={18} /> How to test</h4>
             <ol className="text-sm text-slate-400 list-decimal list-inside space-y-2 leading-relaxed">
               <li>Encrypt a plaintext block with each algorithm.</li>
               <li>Collect the ciphertext byte frequencies.</li>
@@ -291,7 +291,7 @@ export default function App() {
             </ol>
           </div>
           <div className="bg-[#14151a] p-6 rounded-xl border border-slate-800">
-            <h4 className="font-bold text-violet-400 mb-3 flex items-center gap-2"><Binary size={18} /> Why it's good</h4>
+            <h4 className="font-bold text-amber-400 mb-3 flex items-center gap-2"><Binary size={18} /> Why it's good</h4>
             <p className="text-sm text-slate-400 leading-relaxed">
               Produces a single objective number. If Modified DES scores <strong className="text-slate-300">7.9932</strong> vs Original's <strong className="text-slate-300">7.9808</strong>, you can objectively argue your modification maintained or improved unpredictability.
             </p>
@@ -300,13 +300,13 @@ export default function App() {
 
         <div className="bg-[#0f1115] rounded-xl border border-slate-800 p-8">
           <h4 className="font-bold text-slate-200 mb-6 flex items-center gap-2">
-            <BarChart2 size={18} className="text-violet-400" /> Average Entropy Score (bits / byte)
+            <BarChart2 size={18} className="text-amber-400" /> Average Entropy Score (bits / byte)
           </h4>
           <div className="flex flex-col sm:flex-row items-center justify-around gap-8">
             <Gauge value={parseFloat(avgOriginal)} color="#3b82f6" label="Original DES" />
             <div className="flex flex-col items-center gap-2">
               <div className="text-xs text-slate-500 uppercase tracking-widest">Difference</div>
-              <div className="text-2xl font-extrabold text-violet-400 font-mono">
+              <div className="text-2xl font-extrabold text-amber-400 font-mono">
                 +{(parseFloat(avgModified) - parseFloat(avgOriginal)).toFixed(4)}
               </div>
               <div className="text-xs text-slate-500">bits / byte improvement</div>
@@ -333,7 +333,7 @@ export default function App() {
 
         <div className="bg-slate-900 border border-slate-800 rounded-xl p-6 shadow-lg overflow-x-auto">
           <h4 className="font-bold text-slate-200 mb-6 flex items-center gap-2">
-            <Database size={18} className="text-violet-400" /> Per-Sample Entropy Results
+            <Database size={18} className="text-amber-400" /> Per-Sample Entropy Results
           </h4>
           <table className="w-full text-sm min-w-[500px]">
             <thead>
@@ -342,7 +342,7 @@ export default function App() {
                 <th className="text-left text-slate-500 font-semibold pb-3 pr-4">Plaintext Input</th>
                 <th className="text-right text-blue-400 font-semibold pb-3 px-4">Original DES (H)</th>
                 <th className="text-right text-amber-400 font-semibold pb-3 px-4">Modified DES (H)</th>
-                <th className="text-right text-violet-400 font-semibold pb-3 pl-4">Delta</th>
+                <th className="text-right text-amber-400 font-semibold pb-3 pl-4">Delta</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-800">
@@ -354,7 +354,7 @@ export default function App() {
                     <td className="py-3 pr-4 text-slate-300 font-mono text-xs">{row.plaintext}</td>
                     <td className="py-3 px-4 text-right text-blue-300 font-mono">{row.original.toFixed(4)}</td>
                     <td className="py-3 px-4 text-right text-amber-300 font-mono">{row.modified.toFixed(4)}</td>
-                    <td className="py-3 pl-4 text-right"><span className="text-violet-400 font-mono font-semibold">+{delta}</span></td>
+                    <td className="py-3 pl-4 text-right"><span className="text-amber-400 font-mono font-semibold">+{delta}</span></td>
                   </tr>
                 );
               })}
@@ -362,16 +362,16 @@ export default function App() {
                 <td className="py-3 pr-4 text-slate-300 font-bold text-xs" colSpan={2}>Average</td>
                 <td className="py-3 px-4 text-right text-blue-400 font-mono font-bold">{avgOriginal}</td>
                 <td className="py-3 px-4 text-right text-amber-400 font-mono font-bold">{avgModified}</td>
-                <td className="py-3 pl-4 text-right text-violet-400 font-mono font-bold">+{(parseFloat(avgModified) - parseFloat(avgOriginal)).toFixed(4)}</td>
+                <td className="py-3 pl-4 text-right text-amber-400 font-mono font-bold">+{(parseFloat(avgModified) - parseFloat(avgOriginal)).toFixed(4)}</td>
               </tr>
             </tbody>
           </table>
         </div>
 
         <div className="bg-slate-900 border border-slate-800 rounded-xl p-6">
-          <h4 className="text-violet-400 font-bold mb-2 flex items-center gap-2"><CheckCircle2 size={18} /> Key Observation from Entropy Analysis</h4>
+          <h4 className="text-amber-400 font-bold mb-2 flex items-center gap-2"><CheckCircle2 size={18} /> Key Observation from Entropy Analysis</h4>
           <p className="text-slate-300 text-sm leading-relaxed">
-            Both algorithms achieve entropy scores extremely close to the theoretical maximum of <strong>8.0 bits/byte</strong>, confirming both produce highly random-looking ciphertext. The <strong>Modified DES (DSR)</strong> consistently scores marginally higher across all samples. This means the Dynamic Shift Routing step introduces no statistical bias into the output, and in fact slightly strengthens byte-level unpredictability. Reviewers can verify this using Python's <code className="text-violet-300 bg-violet-500/10 px-1.5 py-0.5 rounded font-mono">scipy.stats.entropy()</code> or a simple <code className="text-violet-300 bg-violet-500/10 px-1.5 py-0.5 rounded font-mono">collections.Counter</code> loop.
+            Both algorithms achieve entropy scores extremely close to the theoretical maximum of <strong>8.0 bits/byte</strong>, confirming both produce highly random-looking ciphertext. The <strong>Modified DES (DSR)</strong> consistently scores marginally higher across all samples. This means the Dynamic Shift Routing step introduces no statistical bias into the output, and in fact slightly strengthens byte-level unpredictability. Reviewers can verify this using Python's <code className="text-amber-300 bg-amber-500/10 px-1.5 py-0.5 rounded font-mono">scipy.stats.entropy()</code> or a simple <code className="text-amber-300 bg-amber-500/10 px-1.5 py-0.5 rounded font-mono">collections.Counter</code> loop.
           </p>
         </div>
       </div>
@@ -427,8 +427,8 @@ export default function App() {
           <TabBtn id="graphs"      label="Avalanche Graph Analysis"        activeColor="amber" />
           <TabBtn id="matrix"      label="Visual Bit-Flip Matrix"          activeColor="amber" />
           <TabBtn id="explanation" label="Why DSR Works (Case Study Notes)" activeColor="amber" />
-          <TabBtn id="performance" label="Execution Time and Throughput"   icon={Clock}     activeColor="emerald" />
-          <TabBtn id="entropy"     label="Shannon Entropy"                  icon={BarChart2} activeColor="violet" />
+          <TabBtn id="performance" label="Execution Time and Throughput"   icon={Clock}     activeColor="amber" />
+          <TabBtn id="entropy"     label="Shannon Entropy"                  icon={BarChart2} activeColor="amber" />
         </div>
 
         <div className="min-h-[400px]">
