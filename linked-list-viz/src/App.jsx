@@ -434,27 +434,24 @@ export default function App() {
   // ============================================================================
   // RENDER HELPERS
   // ============================================================================
-  const TabBtn = ({ id, label, icon: Icon, color = "amber" }) => {
+  const TabBtn = ({ id, label, icon: Icon, color = "cyan" }) => {
     const active = tab === id;
-    const colorMap = {
-      amber: 'border-amber-500 text-amber-400',
-      blue: 'border-blue-500 text-blue-400',
-      emerald: 'border-emerald-500 text-emerald-400',
-      violet: 'border-violet-500 text-violet-400',
-      pink: 'border-pink-500 text-pink-400',
-    };
     return (
       <button
         onClick={() => setTab(id)}
-        className={'relative pb-3 px-2 font-medium text-sm transition-colors border-b-2 flex items-center gap-1.5 ' +
-          (active ? colorMap[color] : 'border-transparent text-slate-400 hover:text-slate-200')}
+        className={
+          'relative px-4 py-2 rounded-xl font-medium text-sm transition-all flex items-center gap-1.5 ' +
+          (active
+            ? 'bg-cyan-500/15 border border-cyan-500/50 text-cyan-300 shadow-[0_0_12px_rgba(0,180,216,0.2)]'
+            : 'border border-transparent text-slate-400 hover:text-cyan-300 hover:bg-cyan-500/5')
+        }
       >
         {Icon && <Icon size={14} />}
         {label}
         {id === 'avalanche' && justUpdated && tab !== 'avalanche' && (
           <span className="absolute top-0 right-0 flex h-2 w-2">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-            <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
+            <span className="relative inline-flex rounded-full h-2 w-2 bg-cyan-500"></span>
           </span>
         )}
       </button>
@@ -467,9 +464,9 @@ export default function App() {
     const accentClass = isDecrypt ? 'text-emerald-400' : 'text-blue-400';
     const stateColor = isDecrypt ? 'text-emerald-300' : 'text-sky-300';
     return (
-      <div className="bg-slate-950 rounded-lg border border-slate-800 overflow-hidden">
+      <div className="glass-card rounded-xl overflow-hidden">
         {/* Header: Stage(1) L(2) R(2) State(3) Shift(1) Subkey(3) = 12 */}
-        <div className="grid grid-cols-12 gap-1 px-3 py-2 text-[10px] uppercase font-bold tracking-wider text-slate-500 border-b border-slate-800 bg-slate-900">
+        <div className="grid grid-cols-12 gap-1 px-3 py-2 text-[10px] uppercase font-bold tracking-wider text-slate-500 border-b border-cyan-900/30 bg-black/40">
           <div className="col-span-1">Stage</div>
           <div className="col-span-2">L (32-bit)</div>
           <div className="col-span-2">R (32-bit)</div>
@@ -480,7 +477,7 @@ export default function App() {
         <div className="max-h-[420px] overflow-y-auto">
           {/* Input row (before IP) — full-width flex to avoid grid overflow */}
           {inputHex && (
-            <div className="flex items-center gap-3 px-3 py-2 text-xs font-mono border-b border-slate-900 bg-slate-900/60 flex-wrap">
+            <div className="flex items-center gap-3 px-3 py-2 text-xs font-mono border-b border-cyan-900/20 bg-black/30 flex-wrap">
               <span className="font-bold text-slate-400 text-[10px] uppercase tracking-wider shrink-0 w-10">
                 {isDecrypt ? 'CT' : 'PT'}
               </span>
@@ -492,7 +489,7 @@ export default function App() {
             const stateHex = bitsToHex(r.L) + bitsToHex(r.R);
             const isIP = i === 0, isFinal = i === 16;
             return (
-              <div key={i} className={`grid grid-cols-12 gap-1 px-3 py-1.5 text-xs font-mono border-b border-slate-900 ${isIP ? 'bg-slate-900/40' : isFinal ? 'bg-emerald-900/10' : ''}`}>
+              <div key={i} className={`grid grid-cols-12 gap-1 px-3 py-1.5 text-xs font-mono border-b border-cyan-900/20 ${isIP ? 'bg-black/30' : isFinal ? 'bg-emerald-950/20' : ''}`}>
                 <div className={`col-span-1 font-bold ${isIP ? 'text-slate-500' : isFinal ? 'text-emerald-400' : accentClass}`}>
                   {isIP ? 'IP' : isFinal ? 'Final' : `R${i}`}
                 </div>
@@ -502,17 +499,17 @@ export default function App() {
                   {stateHex}
                 </div>
                 <div className="col-span-1">
-                  {r.shiftVal !== null ? <span className="text-amber-400 font-bold">{r.shiftVal}</span> : <span className="text-slate-700">—</span>}
+                  {r.shiftVal !== null ? <span className="text-cyan-400 font-bold">{r.shiftVal}</span> : <span className="text-slate-700">—</span>}
                 </div>
                 <div className="col-span-3 text-slate-400 text-[10px] tracking-wide" title={r.subkey || ''}>{r.subkey || '—'}</div>
               </div>
             );
           })}
         </div>
-        <div className="px-3 py-2 text-[11px] text-slate-500 bg-slate-900 border-t border-slate-800 flex flex-wrap gap-3">
+        <div className="px-3 py-2 text-[11px] text-slate-500 bg-black/30 border-t border-cyan-900/30 flex flex-wrap gap-3">
           <span><span className="text-yellow-400 font-semibold">Yellow row</span> = raw hex before IP</span>
           <span><span className={`font-semibold ${stateColor}`}>Plaintext (L‖R)</span> = full 64-bit block state at this round</span>
-          <span><span className="text-amber-400 font-semibold">Shift</span> = DSR circular shift amount (0–31)</span>
+          <span><span className="text-cyan-400 font-semibold">Shift</span> = DSR circular shift amount (0–31)</span>
         </div>
       </div>
     );
@@ -535,26 +532,26 @@ export default function App() {
       return { i, dr, or, dsrHex, origHex, diff, diffPct, isIP, isFinal };
     });
     return (
-      <div className="bg-slate-950 rounded-lg border border-slate-800 overflow-hidden">
-        <div className="grid grid-cols-12 gap-1 px-3 py-2 text-[10px] uppercase font-bold tracking-wider text-slate-500 border-b border-slate-800 bg-slate-900">
+      <div className="glass-card rounded-xl overflow-hidden">
+        <div className="grid grid-cols-12 gap-1 px-3 py-2 text-[10px] uppercase font-bold tracking-wider text-slate-500 border-b border-cyan-900/30 bg-black/40">
           <div className="col-span-1">Round</div>
-          <div className="col-span-4 text-amber-400">Modified DES (DSR)</div>
+          <div className="col-span-4 text-cyan-400">Modified DES (DSR)</div>
           <div className="col-span-4 text-blue-400">Original DES</div>
-          <div className="col-span-1 text-amber-400 text-center">Shift</div>
+          <div className="col-span-1 text-cyan-400 text-center">Shift</div>
           <div className="col-span-2 text-slate-400 text-right">Bit Δ</div>
         </div>
         <div className="max-h-[480px] overflow-y-auto">
           {rows.map(({ i, dr, or, dsrHex, origHex, diff, diffPct, isIP, isFinal }) => {
-            const bg = isIP ? 'bg-slate-900/50' : isFinal ? 'bg-emerald-900/10' : diff > 0 ? 'bg-amber-950/10' : '';
+            const bg = isIP ? 'bg-black/25' : isFinal ? 'bg-emerald-950/20' : diff > 0 ? 'bg-blue-950/10' : '';
             const roundLabel = isIP ? 'IP' : isFinal ? 'Final' : `R${i}`;
-            const labelColor = isIP ? 'text-slate-500' : isFinal ? 'text-emerald-400' : 'text-amber-400';
+            const labelColor = isIP ? 'text-slate-500' : isFinal ? 'text-emerald-400' : 'text-cyan-400';
             return (
-              <div key={i} className={`grid grid-cols-12 gap-1 px-3 py-1.5 text-xs font-mono border-b border-slate-900 ${bg}`}>
+              <div key={i} className={`grid grid-cols-12 gap-1 px-3 py-1.5 text-xs font-mono border-b border-cyan-900/20 ${bg}`}>
                 <div className={`col-span-1 font-bold ${labelColor}`}>{roundLabel}</div>
-                <div className="col-span-4 text-amber-200 truncate" title={dsrHex}>{dsrHex}</div>
+                <div className="col-span-4 text-cyan-200 truncate" title={dsrHex}>{dsrHex}</div>
                 <div className="col-span-4 text-blue-200 truncate" title={origHex}>{origHex}</div>
                 <div className="col-span-1 text-center">
-                  {dr.shiftVal !== null ? <span className="text-amber-400 font-bold">{dr.shiftVal}</span> : <span className="text-slate-700">—</span>}
+                  {dr.shiftVal !== null ? <span className="text-cyan-400 font-bold">{dr.shiftVal}</span> : <span className="text-slate-700">—</span>}
                 </div>
                 <div className="col-span-2 text-right">
                   {diff > 0
@@ -565,8 +562,8 @@ export default function App() {
             );
           })}
         </div>
-        <div className="px-3 py-2 text-[11px] text-slate-500 bg-slate-900 border-t border-slate-800 flex gap-4 flex-wrap">
-          <span><span className="text-amber-300">Amber</span> = DSR state · <span className="text-blue-300">Blue</span> = Orig DES state</span>
+        <div className="px-3 py-2 text-[11px] text-slate-500 bg-black/30 border-t border-cyan-900/30 flex gap-4 flex-wrap">
+          <span><span className="text-cyan-300">Amber</span> = DSR state · <span className="text-blue-300">Blue</span> = Orig DES state</span>
           <span><span className="text-emerald-400">Green Δ</span> ≥ 37.5% · <span className="text-yellow-400">Yellow Δ</span> ≥ 18.75% · states diverge as DSR's shift routes bits differently</span>
         </div>
       </div>
@@ -577,45 +574,58 @@ export default function App() {
   // MAIN
   // ============================================================================
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-200 p-4 md:p-8 font-sans selection:bg-amber-500/30">
-      <div className="max-w-6xl mx-auto space-y-6">
+    <div className="min-h-screen text-slate-200 font-sans selection:bg-cyan-500/30" style={{background:'#030712'}}>
 
-        {/* Header */}
-        <header className="border-b border-slate-800 pb-6">
-          <div className="inline-flex items-center gap-2 px-3 py-1 bg-amber-500/10 border border-amber-500/20 text-amber-400 rounded-full text-sm font-medium mb-4">
-            <Shield size={16} /> Case Study — Information Assurance & Security
+      {/* ── Top nav bar ── */}
+      <div className="dsr-topbar px-6 py-2.5 flex items-center justify-between text-sm text-white/90 font-medium tracking-wide">
+        <span className="opacity-80">Group 2</span>
+        <span className="font-semibold tracking-widest uppercase text-xs text-cyan-200">IAS Case Study</span>
+        <span className="opacity-80">DES Modification</span>
+      </div>
+
+      {/* ── Hero section ── */}
+      <div className="dsr-hero mx-4 md:mx-8 mt-4 rounded-2xl overflow-hidden" style={{backgroundImage:'url(/hero-bg.png)', backgroundSize:'cover', backgroundPosition:'center'}}>
+        <div className="px-8 md:px-14 py-10 md:py-14 flex flex-col gap-3">
+          <div className="inline-flex items-center gap-2 px-3 py-1 bg-cyan-500/10 border border-cyan-500/30 text-cyan-300 rounded-full text-xs font-semibold self-start backdrop-blur-sm">
+            <Shield size={13} /> Information Assurance &amp; Security — TSU Case Study
           </div>
-          <h1 className="text-4xl md:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-orange-500 to-pink-500 tracking-tight">
-            Dynamic Shift Routing
+          <h1 className="text-5xl md:text-7xl font-black tracking-tight leading-none gradient-text-dsr drop-shadow-2xl">
+            DYNAMIC<br />SHIFT<br />ROUTING
           </h1>
-          <p className="text-lg text-slate-400 mt-1">Enhancing the Data Encryption Standard</p>
-          <p className="text-slate-500 mt-3 text-sm max-w-3xl leading-relaxed">
-            A working demo of our DES modification. Encrypt and decrypt your own input,
-            inspect every round of both processes, and verify our three security tests
-            (<span className="text-amber-400">Avalanche</span>, <span className="text-amber-400">Performance</span>,
-            <span className="text-amber-400"> Shannon Entropy</span>) computed live from the same algorithm — no hand-crafted numbers.
+          <p className="text-base md:text-lg font-semibold text-white/70 tracking-wide max-w-xl">
+            Enhancing the Data Encryption Standard
           </p>
-        </header>
+          <p className="text-sm text-white/50 max-w-2xl leading-relaxed">
+            Encrypt and decrypt your own input, trace every round, and verify three live security tests —{' '}
+            <span className="text-cyan-300 font-medium">Avalanche</span>,{' '}
+            <span className="text-cyan-300 font-medium">Performance</span>,{' '}
+            <span className="text-cyan-300 font-medium">Shannon Entropy</span>{' '}
+            — all computed from the same algorithm, no hand-crafted numbers.
+          </p>
+        </div>
+      </div>
+
+      <div className="max-w-6xl mx-auto px-4 md:px-8 space-y-6 mt-6 pb-12">
 
         {/* Tabs */}
-        <div className="flex flex-wrap gap-x-5 gap-y-2 border-b border-slate-800">
-          <TabBtn id="demo" label="Encrypt / Decrypt" icon={Key} color="amber" />
-          <TabBtn id="rounds" label="Round-by-Round Trace" icon={Eye} color="amber" />
-          <TabBtn id="avalanche" label="Avalanche Effect" icon={Zap} color="amber" />
-          <TabBtn id="performance" label="Performance Benchmark" icon={Clock} color="amber" />
-          <TabBtn id="entropy" label="Shannon Entropy" icon={BarChart2} color="amber" />
-          <TabBtn id="explanation" label="Why DSR Works" icon={Info} color="amber" />
+        <div className="flex flex-wrap gap-x-1 gap-y-2 bg-black/30 backdrop-blur-md border border-cyan-900/30 rounded-2xl p-2">
+          <TabBtn id="demo" label="Encrypt / Decrypt" icon={Key} color="cyan" />
+          <TabBtn id="rounds" label="Round-by-Round Trace" icon={Eye} color="cyan" />
+          <TabBtn id="avalanche" label="Avalanche Effect" icon={Zap} color="cyan" />
+          <TabBtn id="performance" label="Performance Benchmark" icon={Clock} color="cyan" />
+          <TabBtn id="entropy" label="Shannon Entropy" icon={BarChart2} color="cyan" />
+          <TabBtn id="explanation" label="Why DSR Works" icon={Info} color="cyan" />
         </div>
 
         {/* ===================== TAB: DEMO ===================== */}
         {tab === 'demo' && (
           <div className="space-y-6 animate-in fade-in duration-300">
-            <div className="bg-slate-900 rounded-xl border border-slate-800 p-6 space-y-6 shadow-xl">
-              <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center border-b border-slate-800 pb-4 gap-4">
+            <div className="glass-card-strong rounded-2xl p-6 space-y-6">
+              <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center border-b border-cyan-900/30 pb-4 gap-4">
                 <h2 className="text-lg font-semibold text-white flex items-center gap-2">
-                  <Lock size={18} className="text-amber-400" /> Encryption / Decryption Trace
+                  <Lock size={18} className="text-cyan-400" /> Encryption / Decryption Trace
                 </h2>
-                <div className="flex bg-slate-950 rounded-lg p-1 border border-slate-800">
+                <div className="flex bg-black/40 rounded-lg p-1 border border-cyan-900/40">
                   <button onClick={() => { setInputMode('text'); setPlainText(''); setPlainHex(''); }}
                     className={`px-4 py-1.5 text-sm font-medium rounded-md flex items-center gap-2 transition-colors ${inputMode === 'text' ? 'bg-slate-800 text-white' : 'text-slate-400 hover:text-white'}`}>
                     <Type size={14} /> Text
@@ -633,7 +643,7 @@ export default function App() {
                     <label className="text-xs text-slate-400 uppercase tracking-wider font-semibold">Human Plaintext (Max 8 chars)</label>
                     <input type="text" value={plainText} onChange={(e) => setPlainText(e.target.value)}
                       placeholder="E.g., HELLO" maxLength={8}
-                      className="w-full bg-slate-950 border border-slate-700 rounded-lg p-3 text-emerald-400 font-mono focus:border-emerald-500 outline-none" />
+                      className="w-full bg-black/40 border border-cyan-900/50 rounded-lg p-3 text-cyan-300 font-mono focus:border-cyan-500 outline-none" />
                     {plainHex && <div className="text-xs text-slate-500 mt-1 font-mono">Hex: <span className="text-slate-400">{plainHex.padEnd(16, '0')}</span></div>}
                   </div>
                 ) : (
@@ -641,14 +651,14 @@ export default function App() {
                     <label className="text-xs text-slate-400 uppercase tracking-wider font-semibold">Plaintext (16 Hex Chars)</label>
                     <input type="text" value={plainHex} onChange={(e) => setPlainHex(e.target.value.replace(/[^0-9A-Fa-f]/g, '').toUpperCase())}
                       placeholder="E.g., 50524F4744454E20" maxLength={16}
-                      className="w-full bg-slate-950 border border-slate-700 rounded-lg p-3 text-emerald-400 font-mono focus:border-emerald-500 outline-none" />
+                      className="w-full bg-black/40 border border-cyan-900/50 rounded-lg p-3 text-cyan-300 font-mono focus:border-cyan-500 outline-none" />
                   </div>
                 )}
                 <div className="space-y-1">
                   <label className="text-xs text-slate-400 uppercase tracking-wider font-semibold">Symmetric Key (16 Hex Chars)</label>
                   <input type="text" value={keyHex} onChange={(e) => setKeyHex(e.target.value.replace(/[^0-9A-Fa-f]/g, '').toUpperCase())}
                     placeholder="E.g., 133457799BBCDFF1" maxLength={16}
-                    className="w-full bg-slate-950 border border-slate-700 rounded-lg p-3 text-blue-400 font-mono focus:border-blue-500 outline-none" />
+                    className="w-full w-full bg-black/40 border border-cyan-900/50 rounded-lg p-3 text-sky-300 font-mono focus:border-cyan-500 outline-none transition-all" />
                 </div>
               </div>
 
@@ -660,10 +670,10 @@ export default function App() {
               </div>
 
               {cipherOut && (
-                <div className="bg-slate-950 p-4 rounded-lg border border-slate-800 space-y-4 animate-in slide-in-from-top-4">
+                <div className="glass-card rounded-xl p-4 space-y-4 animate-in slide-in-from-top-4">
                   <div className="space-y-1">
                     <label className="text-xs text-slate-400 uppercase tracking-wider font-semibold">Ciphertext Output</label>
-                    <div className="w-full bg-black border border-slate-800 rounded-lg p-4 text-red-400 font-mono tracking-widest text-center text-lg shadow-inner">
+                    <div className="w-full bg-black/60 border border-red-900/40 rounded-xl p-4 text-red-400 font-mono tracking-widest text-center text-lg shadow-inner">
                       {cipherOut.match(/.{1,4}/g).join(' ')}
                     </div>
                   </div>
@@ -677,7 +687,7 @@ export default function App() {
               )}
 
               {decryptedHexOut && (
-                <div className={`p-5 rounded-lg border animate-in zoom-in-95 ${decryptedHexOut === lockedPlaintextHex ? 'bg-emerald-900/20 border-emerald-700' : 'bg-red-900/20 border-red-700'}`}>
+                <div className={`p-5 rounded-lg border animate-in zoom-in-95 ${decryptedHexOut === lockedPlaintextHex ? 'glass-card border-emerald-500/40' : 'glass-card border-red-500/40'}`}>
                   <div className="flex items-center gap-2 mb-4 pb-3 border-b border-emerald-800/30">
                     {decryptedHexOut === lockedPlaintextHex ? <CheckCircle2 size={24} className="text-emerald-500" /> : <AlertCircle size={24} className="text-red-500" />}
                     <span className={`text-lg font-semibold ${decryptedHexOut === lockedPlaintextHex ? "text-emerald-400" : "text-red-400"}`}>
@@ -685,7 +695,7 @@ export default function App() {
                     </span>
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="bg-slate-950 border border-slate-800 rounded-lg p-4 shadow-inner space-y-2">
+                    <div className="glass-card rounded-xl p-4 space-y-2">
                       <div className="text-xs text-slate-500 uppercase tracking-wider font-semibold">Raw Hex Verification</div>
                       <div className="font-mono text-sm text-slate-300">
                         Original: {lockedPlaintextHex}<br />
@@ -693,7 +703,7 @@ export default function App() {
                       </div>
                     </div>
                     {inputMode === 'text' && (
-                      <div className="bg-slate-950 border border-slate-800 rounded-lg p-4 shadow-inner space-y-2">
+                      <div className="glass-card rounded-xl p-4 space-y-2">
                         <div className="text-xs text-slate-500 uppercase tracking-wider font-semibold">Human Text Recovery</div>
                         <div className="font-mono text-lg text-emerald-400">"{decryptedTextOut.trim()}"</div>
                       </div>
@@ -704,7 +714,7 @@ export default function App() {
 
               {/* Key Schedule */}
               {encTrace && (
-                <div className="pt-4 border-t border-slate-800 space-y-4">
+                <div className="pt-4 border-t border-cyan-900/30 space-y-4">
                   <button onClick={() => setShowKeySchedule(!showKeySchedule)}
                     className="flex items-center gap-2 text-sm text-blue-400 hover:text-blue-300 font-semibold">
                     {showKeySchedule ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
@@ -713,7 +723,7 @@ export default function App() {
                   </button>
                   {showKeySchedule && (
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 animate-in slide-in-from-top-4">
-                      <div className="bg-slate-950 p-4 rounded-lg border border-slate-800">
+                      <div className="glass-card rounded-xl p-4">
                         <h4 className="text-xs font-bold text-slate-500 uppercase mb-3 flex items-center gap-2">
                           <ArrowRight size={14} className="text-blue-500" /> Encryption Keys (Forward)
                         </h4>
@@ -725,7 +735,7 @@ export default function App() {
                           ))}
                         </div>
                       </div>
-                      <div className="bg-slate-950 p-4 rounded-lg border border-slate-800">
+                      <div className="glass-card rounded-xl p-4">
                         <h4 className="text-xs font-bold text-slate-500 uppercase mb-3 flex items-center gap-2">
                           <ArrowRight size={14} className="text-emerald-500 rotate-180" /> Decryption Keys (Reverse)
                         </h4>
@@ -745,12 +755,12 @@ export default function App() {
 
             {/* Quick visual link to round trace */}
             {encTrace && (
-              <div className="bg-gradient-to-br from-slate-900 to-amber-950/10 border border-amber-500/20 rounded-xl p-5 flex items-center justify-between gap-4">
+              <div className="bg-gradient-to-br from-slate-900 to-amber-950/10 border border-cyan-500/20 rounded-xl p-5 flex items-center justify-between gap-4">
                 <div>
-                  <div className="text-amber-400 font-semibold flex items-center gap-2"><Eye size={16} /> See every round</div>
+                  <div className="text-cyan-400 font-semibold flex items-center gap-2"><Eye size={16} /> See every round</div>
                   <p className="text-sm text-slate-400 mt-1">Inspect L, R, the dynamic shift value, and subkey at each of the 16 rounds — for both encryption and decryption.</p>
                 </div>
-                <button onClick={() => setTab('rounds')} className="bg-amber-500 hover:bg-amber-400 text-slate-950 font-semibold px-4 py-2 rounded-lg flex items-center gap-2 whitespace-nowrap">
+                <button onClick={() => setTab('rounds')} className="bg-cyan-500 hover:bg-amber-400 text-slate-950 font-semibold px-4 py-2 rounded-lg flex items-center gap-2 whitespace-nowrap">
                   Open Trace <ArrowRight size={16} />
                 </button>
               </div>
@@ -762,40 +772,40 @@ export default function App() {
         {tab === 'rounds' && (
           <div className="space-y-6 animate-in fade-in duration-300">
             {!encTrace ? (
-              <div className="bg-slate-900 border border-slate-800 rounded-xl p-10 text-center text-slate-400">
+              <div className="glass-card rounded-2xl p-10 text-center text-slate-400">
                 <Eye size={36} className="mx-auto text-slate-600 mb-3" />
-                <p>No trace yet. Encrypt something on the <button className="text-amber-400 underline" onClick={() => setTab('demo')}>Encrypt / Decrypt</button> tab first.</p>
+                <p>No trace yet. Encrypt something on the <button className="text-cyan-400 underline" onClick={() => setTab('demo')}>Encrypt / Decrypt</button> tab first.</p>
               </div>
             ) : (
               <>
                 {/* Plaintext → Cipher summary strip */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                  <div className="bg-slate-900 border border-emerald-500/30 rounded-xl p-4">
+                  <div className="glass-card border-emerald-500/30 rounded-xl p-4">
                     <div className="text-[10px] text-slate-500 uppercase tracking-wider mb-1">Plaintext (input)</div>
                     <div className="font-mono text-emerald-400 text-base break-all">{lockedPlaintextHex}</div>
                   </div>
-                  <div className="bg-slate-900 border border-amber-500/30 rounded-xl p-4">
+                  <div className="glass-card border-cyan-500/30 rounded-xl p-4">
                     <div className="text-[10px] text-slate-500 uppercase tracking-wider mb-1">DSR Ciphertext</div>
-                    <div className="font-mono text-amber-400 text-base break-all">{cipherOut}</div>
+                    <div className="font-mono text-cyan-400 text-base break-all">{cipherOut}</div>
                   </div>
-                  <div className="bg-slate-900 border border-blue-500/30 rounded-xl p-4">
+                  <div className="glass-card border-blue-500/30 rounded-xl p-4">
                     <div className="text-[10px] text-slate-500 uppercase tracking-wider mb-1">Orig DES Ciphertext</div>
                     <div className="font-mono text-blue-400 text-base break-all">{origCipherOut}</div>
                   </div>
                 </div>
 
                 {/* ── ENCRYPTION comparison ─────────────────────────── */}
-                <div className="bg-slate-900 border border-amber-500/20 rounded-xl p-5 shadow-lg space-y-4">
+                <div className="glass-card-strong rounded-2xl p-5 space-y-4">
                   <div className="flex items-center justify-between">
-                    <h3 className="text-amber-400 font-semibold flex items-center gap-2"><Lock size={16} /> Encryption Trace — DSR vs Original DES (Plaintext → Ciphertext)</h3>
+                    <h3 className="text-cyan-400 font-semibold flex items-center gap-2"><Lock size={16} /> Encryption Trace — DSR vs Original DES (Plaintext → Ciphertext)</h3>
                   </div>
-                  <p className="text-xs text-slate-400">The table below shows the internal state (L+R as 16-hex) after every round for both algorithms side-by-side. The <strong className="text-amber-300">Bit Δ</strong> column counts how many of the 64 bits differ between them — DSR's dynamic shift makes the states diverge earlier.</p>
+                  <p className="text-xs text-slate-400">The table below shows the internal state (L+R as 16-hex) after every round for both algorithms side-by-side. The <strong className="text-cyan-300">Bit Δ</strong> column counts how many of the 64 bits differ between them — DSR's dynamic shift makes the states diverge earlier.</p>
                   {renderComparisonTable(encTrace, encTraceOrig, false)}
 
                   {/* Individual detailed traces */}
                   <div className="grid md:grid-cols-2 gap-4 pt-2">
                     <div className="space-y-2">
-                      <button onClick={() => setShowEncTrace(!showEncTrace)} className="w-full flex items-center justify-between text-xs bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/20 rounded-lg px-3 py-2 text-amber-400 font-semibold">
+                      <button onClick={() => setShowEncTrace(!showEncTrace)} className="w-full flex items-center justify-between text-xs bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-500/20 rounded-lg px-3 py-2 text-cyan-400 font-semibold">
                         <span className="flex items-center gap-2"><Eye size={13} /> DSR Round Detail (L/R/Shift/Subkey)</span>
                         {showEncTrace ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
                       </button>
@@ -812,7 +822,7 @@ export default function App() {
                 </div>
 
                 {/* ── DECRYPTION comparison ─────────────────────────── */}
-                <div className="bg-slate-900 border border-emerald-500/20 rounded-xl p-5 shadow-lg space-y-4">
+                <div className="glass-card-strong rounded-2xl p-5 space-y-4">
                   <div className="flex items-center justify-between">
                     <h3 className="text-emerald-400 font-semibold flex items-center gap-2"><Unlock size={16} /> Decryption Trace — DSR vs Original DES (Ciphertext → Plaintext)</h3>
                     {!decTrace && (
@@ -830,7 +840,7 @@ export default function App() {
                       <div className="bg-emerald-900/20 border border-emerald-500/30 rounded-lg px-4 py-3 flex items-center gap-3 text-sm">
                         <CheckCircle2 size={20} className="text-emerald-400 shrink-0" />
                         <span className="text-slate-200">
-                          DSR decrypted back to <strong className="text-emerald-400 font-mono">{decTrace.cipher}</strong>
+                          DSR decrypted back to <strong className="text-cyan-300 font-mono">{decTrace.cipher}</strong>
                           {decTrace.cipher === lockedPlaintextHex ? <span className="text-emerald-400 font-semibold"> ✓ matches original plaintext exactly</span> : <span className="text-red-400"> ✗ mismatch</span>}.
                           &nbsp;Original DES → <strong className="text-blue-400 font-mono">{decTraceOrig?.cipher}</strong>
                           {decTraceOrig?.cipher === lockedPlaintextHex ? <span className="text-emerald-400 font-semibold"> ✓</span> : ''}.
@@ -843,7 +853,7 @@ export default function App() {
                       <div className="grid md:grid-cols-2 gap-4 pt-2">
                         <div className="space-y-2">
                           <details className="group">
-                            <summary className="w-full flex items-center justify-between text-xs bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/20 rounded-lg px-3 py-2 text-amber-400 font-semibold cursor-pointer list-none">
+                            <summary className="w-full flex items-center justify-between text-xs bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-500/20 rounded-lg px-3 py-2 text-cyan-400 font-semibold cursor-pointer list-none">
                               <span className="flex items-center gap-2"><Eye size={13} /> DSR Decrypt Detail</span>
                               <ChevronRight size={14} className="group-open:rotate-90 transition-transform" />
                             </summary>
@@ -864,14 +874,14 @@ export default function App() {
                   )}
                 </div>
 
-                <div className="bg-slate-900 border border-slate-800 rounded-xl p-5 text-sm text-slate-400 leading-relaxed">
-                  <h4 className="text-amber-400 font-semibold mb-2 flex items-center gap-2"><Info size={16} /> How to read this page</h4>
+                <div className="glass-card rounded-2xl p-5 text-sm text-slate-400 leading-relaxed">
+                  <h4 className="text-cyan-400 font-semibold mb-2 flex items-center gap-2"><Info size={16} /> How to read this page</h4>
                   <ul className="space-y-1.5 list-disc list-inside text-sm text-slate-400 leading-relaxed">
                     <li><strong className="text-yellow-300">Yellow row</strong> — the raw hex input fed to the cipher, shown <em>before</em> the Initial Permutation (IP) rearranges the bits.</li>
                     <li><strong className="text-slate-200">IP row</strong> — state after IP; this is where DES actually starts operating.</li>
-                    <li><strong className="text-slate-200">R1–R16</strong> — Feistel rounds. Each produces a new (L, R) pair. DSR's <strong className="text-amber-400">Shift</strong> column shows the data-dependent rotation (0–31) applied that round.</li>
+                    <li><strong className="text-slate-200">R1–R16</strong> — Feistel rounds. Each produces a new (L, R) pair. DSR's <strong className="text-cyan-400">Shift</strong> column shows the data-dependent rotation (0–31) applied that round.</li>
                     <li><strong className="text-emerald-400">Final row</strong> — after IP-inverse, this is the output ciphertext (encryption) or recovered plaintext (decryption).</li>
-                    <li><strong className="text-amber-300">Bit Δ</strong> — how many of the 64 bits differ between DSR and Orig DES at that round. Divergence grows quickly because DSR routes bits differently each round.</li>
+                    <li><strong className="text-cyan-300">Bit Δ</strong> — how many of the 64 bits differ between DSR and Orig DES at that round. Divergence grows quickly because DSR routes bits differently each round.</li>
                   </ul>
                 </div>
               </>
@@ -883,23 +893,23 @@ export default function App() {
         {tab === 'avalanche' && (
           <div className="space-y-6 animate-in fade-in duration-300">
             {/* Plain-English explainer */}
-            <div className="bg-gradient-to-br from-slate-900 to-amber-950/20 border border-amber-500/20 rounded-xl p-5 grid md:grid-cols-3 gap-4">
+            <div className="bg-gradient-to-br from-slate-900 to-amber-950/20 border border-cyan-500/20 rounded-xl p-5 grid md:grid-cols-3 gap-4">
               <div>
-                <div className="text-amber-400 font-bold text-sm flex items-center gap-2 mb-2"><Info size={16} /> What is the Avalanche Effect?</div>
-                <p className="text-sm text-slate-300 leading-relaxed">If you change <strong className="text-amber-300">just one bit</strong> of the input, a strong cipher should change <strong className="text-amber-300">about half</strong> of the output bits. That's the avalanche.</p>
+                <div className="text-cyan-400 font-bold text-sm flex items-center gap-2 mb-2"><Info size={16} /> What is the Avalanche Effect?</div>
+                <p className="text-sm text-slate-300 leading-relaxed">If you change <strong className="text-cyan-300">just one bit</strong> of the input, a strong cipher should change <strong className="text-cyan-300">about half</strong> of the output bits. That's the avalanche.</p>
               </div>
               <div>
-                <div className="text-amber-400 font-bold text-sm flex items-center gap-2 mb-2"><Target size={16} /> Why ~50%?</div>
+                <div className="text-cyan-400 font-bold text-sm flex items-center gap-2 mb-2"><Target size={16} /> Why ~50%?</div>
                 <p className="text-sm text-slate-300 leading-relaxed">50% means the output looks completely random to anyone who doesn't have the key. Lower than that means an attacker can guess parts of the secret.</p>
               </div>
               <div>
-                <div className="text-amber-400 font-bold text-sm flex items-center gap-2 mb-2"><Zap size={16} /> Why DSR wins</div>
+                <div className="text-cyan-400 font-bold text-sm flex items-center gap-2 mb-2"><Zap size={16} /> Why DSR wins</div>
                 <p className="text-sm text-slate-300 leading-relaxed">DSR's data-dependent shift scatters the changes faster, so it crosses 50% in fewer rounds and stays close to it more consistently across different inputs.</p>
               </div>
             </div>
-            <div className="bg-slate-900 rounded-xl border border-slate-800 p-6 space-y-6 shadow-xl">
-              <div className="flex flex-col md:flex-row justify-between md:items-center border-b border-slate-800 pb-3 gap-2">
-                <h2 className="text-lg font-semibold text-white flex items-center gap-2"><Zap size={18} className="text-amber-400" /> Single-Bit Avalanche Tester</h2>
+            <div className="glass-card-strong rounded-2xl p-6 space-y-6">
+              <div className="flex flex-col md:flex-row justify-between md:items-center border-b border-cyan-900/20 pb-3 gap-2">
+                <h2 className="text-lg font-semibold text-white flex items-center gap-2"><Zap size={18} className="text-cyan-400" /> Single-Bit Avalanche Tester</h2>
                 <div className="flex items-center gap-2 text-xs text-emerald-400 bg-emerald-500/10 px-3 py-1.5 rounded-full border border-emerald-500/20">
                   <Info size={14} /> Live computed — same algorithm as the Demo tab
                 </div>
@@ -909,16 +919,16 @@ export default function App() {
                 <div className="space-y-1">
                   <label className="text-xs text-slate-400 uppercase tracking-wider font-semibold">Shared Key (Hex)</label>
                   <input type="text" value={avKey} onChange={(e) => setAvKey(e.target.value.replace(/[^0-9A-Fa-f]/g, '').toUpperCase())}
-                    maxLength={16} className="w-full bg-slate-950 border border-slate-700 rounded-lg p-2 text-blue-400 font-mono outline-none focus:border-blue-500" />
+                    maxLength={16} className="w-full bg-black/40 border border-cyan-900/50 rounded-lg p-2 text-blue-400 font-mono outline-none focus:border-blue-500" />
                 </div>
                 <div className="space-y-1">
                   <label className="text-xs text-slate-400 uppercase tracking-wider font-semibold">Base Plaintext (P1 Hex)</label>
                   <input type="text" value={avP1} onChange={(e) => setAvP1(e.target.value.replace(/[^0-9A-Fa-f]/g, '').toUpperCase())}
-                    maxLength={16} className="w-full bg-slate-950 border border-slate-700 rounded-lg p-2 text-emerald-400 font-mono outline-none focus:border-emerald-500" />
+                    maxLength={16} className="w-full bg-black/40 border border-cyan-900/50 rounded-lg p-2 text-cyan-300 font-mono outline-none focus:border-cyan-500" />
                 </div>
                 <div className="space-y-1">
                   <label className="text-xs text-yellow-400 uppercase tracking-wider font-semibold">Bit to Flip (1–64)</label>
-                  <div className="flex items-center bg-slate-950 border border-yellow-600/50 rounded-lg overflow-hidden focus-within:border-yellow-500">
+                  <div className="flex items-center bg-black/60 border border-yellow-600/50 rounded-lg overflow-hidden focus-within:border-yellow-500">
                     <div className="bg-yellow-500/10 px-3 py-2 text-yellow-500"><Target size={18} /></div>
                     <input type="number" min="1" max="64" value={bitToFlip} onChange={(e) => setBitToFlip(e.target.value)}
                       className="w-full bg-transparent p-2 text-yellow-400 font-bold outline-none" />
@@ -932,7 +942,7 @@ export default function App() {
               </button>
 
               {avalancheResult && (
-                <div className="bg-slate-950 rounded-lg border border-slate-800 p-5 space-y-6">
+                <div className="glass-card rounded-xl p-5 space-y-6">
                   {/* Comparison cards */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="bg-blue-900/20 border border-blue-500/30 rounded-xl p-4">
@@ -940,16 +950,16 @@ export default function App() {
                       <div className="text-3xl font-bold text-blue-400">{avalancheResult.origPercentage}%</div>
                       <div className="text-xs text-blue-300/70 mt-1">{avalancheResult.origFlipped} of 64 bits flipped</div>
                     </div>
-                    <div className="bg-amber-900/20 border border-amber-500/30 rounded-xl p-4">
-                      <div className="text-xs uppercase text-amber-400 tracking-wider mb-1">Modified DES (DSR)</div>
-                      <div className="text-3xl font-bold text-amber-400">{avalancheResult.percentage}%</div>
-                      <div className="text-xs text-amber-300/70 mt-1">{avalancheResult.flipped} of 64 bits flipped</div>
+                    <div className="bg-amber-900/20 border border-cyan-500/30 rounded-xl p-4">
+                      <div className="text-xs uppercase text-cyan-400 tracking-wider mb-1">Modified DES (DSR)</div>
+                      <div className="text-3xl font-bold text-cyan-400">{avalancheResult.percentage}%</div>
+                      <div className="text-xs text-cyan-300/70 mt-1">{avalancheResult.flipped} of 64 bits flipped</div>
                     </div>
                   </div>
 
                   {/* Per-round chart */}
                   {avalancheSeries && (
-                    <div className="bg-slate-900 rounded-lg border border-slate-800 p-4">
+                    <div className="glass-card rounded-xl p-4">
                       <h3 className="text-sm font-bold text-slate-200 mb-3 flex items-center gap-2"><Activity size={16} className="text-blue-400" /> Round-by-Round Avalanche Progression</h3>
                       <svg viewBox="0 0 800 280" className="w-full h-auto">
                         {(() => {
@@ -983,15 +993,15 @@ export default function App() {
                       </svg>
                       <div className="flex justify-center gap-6 mt-2 text-xs">
                         <span className="flex items-center gap-2"><span className="w-3 h-3 bg-blue-500 rounded-sm" /> Original DES</span>
-                        <span className="flex items-center gap-2"><span className="w-3 h-3 bg-amber-500 rounded-sm" /> Modified (DSR)</span>
+                        <span className="flex items-center gap-2"><span className="w-3 h-3 bg-cyan-500 rounded-sm" /> Modified (DSR)</span>
                         <span className="flex items-center gap-2"><span className="w-3 h-0.5 bg-emerald-500" /> Ideal 50%</span>
                       </div>
                     </div>
                   )}
 
                   {/* Math breakdown */}
-                  <div className="border border-slate-800 rounded-lg overflow-hidden">
-                    <div className="bg-slate-900 px-4 py-2 border-b border-slate-800 flex items-center gap-2">
+                  <div className="glass-card rounded-xl overflow-hidden">
+                    <div className="bg-black/40 px-4 py-2 border-b border-cyan-900/20 flex items-center gap-2">
                       <Calculator size={16} className="text-blue-400" />
                       <h3 className="text-xs font-bold uppercase tracking-wider text-slate-300">Mathematical Breakdown (DSR)</h3>
                     </div>
@@ -1001,7 +1011,7 @@ export default function App() {
                         <div className="flex gap-4"><span className="w-8 text-emerald-400">P1:</span><span className="text-slate-300">{avalancheResult.p1Bin}</span></div>
                         <div className="flex gap-4"><span className="w-8 text-yellow-400">P2:</span><span className="text-slate-300">{avalancheResult.p2Bin}</span></div>
                       </div>
-                      <div className="border-t border-slate-800 pt-3 space-y-1">
+                      <div className="border-t border-cyan-900/30 pt-3 space-y-1">
                         <div className="text-slate-500">2. Ciphertext XOR:</div>
                         <div className="flex gap-4"><span className="w-8 text-emerald-400">C1:</span><span className="text-slate-300">{avalancheResult.c1Bin}</span></div>
                         <div className="flex gap-4"><span className="w-8 text-yellow-400">C2:</span><span className="text-slate-300">{avalancheResult.c2Bin}</span></div>
@@ -1009,9 +1019,9 @@ export default function App() {
                           <span className="w-8 text-red-400">XOR:</span><span className="text-red-400 font-bold">{avalancheResult.xorBin}</span>
                         </div>
                       </div>
-                      <div className="border-t border-slate-800 pt-3 flex items-center justify-between">
+                      <div className="border-t border-cyan-900/30 pt-3 flex items-center justify-between">
                         <span className="text-slate-500">3. Final:</span>
-                        <span className="bg-slate-900 px-3 py-1 rounded border border-slate-800">
+                        <span className="bg-black/40 px-3 py-1 rounded border border-cyan-900/40">
                           ({avalancheResult.flipped} / 64) × 100 = <strong className="text-white">{avalancheResult.percentage}%</strong>
                         </span>
                       </div>
@@ -1026,12 +1036,12 @@ export default function App() {
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                       {[
                         { title: 'Original DES', arr: avalancheResult.origVisualArray, count: avalancheResult.origFlipped, pct: avalancheResult.origPercentage, color: 'blue', flipBg: 'bg-blue-500', flipText: 'text-blue-300', border: 'border-blue-500/30' },
-                        { title: 'Modified DES (DSR)', arr: avalancheResult.visualArray, count: avalancheResult.flipped, pct: avalancheResult.percentage, color: 'amber', flipBg: 'bg-amber-500', flipText: 'text-amber-300', border: 'border-amber-500/30' },
+                        { title: 'Modified DES (DSR)', arr: avalancheResult.visualArray, count: avalancheResult.flipped, pct: avalancheResult.percentage, color: 'amber', flipBg: 'bg-cyan-500', flipText: 'text-cyan-300', border: 'border-cyan-500/30' },
                       ].map((m) => (
-                        <div key={m.title} className={`bg-slate-950 rounded-xl border ${m.border} p-4`}>
+                        <div key={m.title} className={`bg-black/60 rounded-xl border ${m.border} p-4`}>
                           <div className="flex items-center justify-between mb-3">
                             <div className={`text-xs font-bold uppercase tracking-wider ${m.flipText}`}>{m.title}</div>
-                            <div className={`text-xs font-mono px-2 py-0.5 rounded-full bg-slate-900 border border-slate-800 ${m.flipText}`}>{m.count}/64 · {m.pct}%</div>
+                            <div className={`text-xs font-mono px-2 py-0.5 rounded-full bg-black/20 border border-cyan-900/25 ${m.flipText}`}>{m.count}/64 · {m.pct}%</div>
                           </div>
                           <div className="grid grid-cols-8 gap-1.5">
                             {m.arr.map((f, i) => (
@@ -1039,7 +1049,7 @@ export default function App() {
                                 className={`aspect-square flex items-center justify-center rounded font-mono text-[11px] font-bold transition
                                   ${f
                                     ? `${m.flipBg} text-slate-950 shadow-[0_0_8px_rgba(245,158,11,0.5)]`
-                                    : 'bg-slate-900 text-slate-700 border border-slate-800'}`}>
+                                    : 'bg-black/20 text-slate-700 border border-cyan-900/25'}`}>
                                 {f ? '1' : '0'}
                               </div>
                             ))}
@@ -1052,7 +1062,7 @@ export default function App() {
                       ))}
                     </div>
                     <p className="text-xs text-slate-500 mt-3 italic">
-                      Each cell is one ciphertext bit. <span className="text-amber-400">"1"</span> means it changed when we flipped a single input bit; <span className="text-slate-400">"0"</span> means it stayed the same. The closer to ~32 flipped bits (50%), the better the diffusion.
+                      Each cell is one ciphertext bit. <span className="text-cyan-400">"1"</span> means it changed when we flipped a single input bit; <span className="text-slate-400">"0"</span> means it stayed the same. The closer to ~32 flipped bits (50%), the better the diffusion.
                     </p>
                   </div>
                 </div>
@@ -1060,14 +1070,14 @@ export default function App() {
             </div>
 
             {/* AGGREGATE AVALANCHE: averages across every input bit */}
-            <div className="bg-slate-900 rounded-xl border border-amber-500/20 p-6 space-y-5 shadow-xl">
+            <div className="glass-card-strong rounded-2xl p-6 space-y-5">
               <div className="flex flex-col md:flex-row justify-between md:items-center gap-3">
                 <div>
-                  <h2 className="text-lg font-semibold text-white flex items-center gap-2"><Activity size={18} className="text-amber-400" /> Deep Avalanche Analysis (All 64 Bits)</h2>
-                  <p className="text-xs text-slate-400 mt-1">Single-bit tests can fluctuate. This runs the avalanche test for <strong className="text-amber-300">every</strong> input bit position and averages the results — a much fairer comparison.</p>
+                  <h2 className="text-lg font-semibold text-white flex items-center gap-2"><Activity size={18} className="text-cyan-400" /> Deep Avalanche Analysis (All 64 Bits)</h2>
+                  <p className="text-xs text-slate-400 mt-1">Single-bit tests can fluctuate. This runs the avalanche test for <strong className="text-cyan-300">every</strong> input bit position and averages the results — a much fairer comparison.</p>
                 </div>
                 <button onClick={runAggregateAvalanche}
-                  className="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-slate-950 font-semibold px-4 py-2 rounded-lg flex items-center gap-2 whitespace-nowrap">
+                  className="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-cyan-400 hover:to-orange-400 text-slate-950 font-semibold px-4 py-2 rounded-lg flex items-center gap-2 whitespace-nowrap">
                   <Play size={14} /> {aggregateAv ? 'Re-run' : 'Run Deep Test'}
                 </button>
               </div>
@@ -1081,13 +1091,13 @@ export default function App() {
                 return (
                   <>
                     {/* Winner banner */}
-                    <div className="bg-gradient-to-r from-amber-500/10 to-emerald-500/10 border border-amber-500/30 rounded-xl p-4 flex items-start gap-3">
-                      <CheckCircle2 className="text-amber-400 shrink-0 mt-0.5" size={22} />
+                    <div className="bg-gradient-to-r from-amber-500/10 to-emerald-500/10 border border-cyan-500/30 rounded-xl p-4 flex items-start gap-3">
+                      <CheckCircle2 className="text-cyan-400 shrink-0 mt-0.5" size={22} />
                       <div className="text-sm text-slate-200 leading-relaxed">
-                        <strong className="text-amber-400">In plain English:</strong> averaged across all 64 possible single-bit changes, DSR ends at
-                        <strong className="text-amber-300"> {aggregateAv.avgPctDsr.toFixed(2)}%</strong> avalanche vs DES's
+                        <strong className="text-cyan-400">In plain English:</strong> averaged across all 64 possible single-bit changes, DSR ends at
+                        <strong className="text-cyan-300"> {aggregateAv.avgPctDsr.toFixed(2)}%</strong> avalanche vs DES's
                         <strong className="text-blue-300"> {aggregateAv.avgPctOrig.toFixed(2)}%</strong>.
-                        DSR reaches the 50% diffusion target at <strong className="text-amber-300">round {aggregateAv.dsrIdealCross > 0 ? aggregateAv.dsrIdealCross : 'never (in 16)'}</strong>,
+                        DSR reaches the 50% diffusion target at <strong className="text-cyan-300">round {aggregateAv.dsrIdealCross > 0 ? aggregateAv.dsrIdealCross : 'never (in 16)'}</strong>,
                         DES at <strong className="text-blue-300">round {aggregateAv.origIdealCross > 0 ? aggregateAv.origIdealCross : 'never (in 16)'}</strong>.
                         Lower variance (±{aggregateAv.stdevDsr.toFixed(2)} for DSR vs ±{aggregateAv.stdevOrig.toFixed(2)} for DES) means DSR's behavior is more consistent across inputs — exactly what you want from a strong cipher.
                       </div>
@@ -1100,13 +1110,13 @@ export default function App() {
                         { label: 'Reaches 50% by Round', dsr: aggregateAv.dsrIdealCross > 0 ? `R${aggregateAv.dsrIdealCross}` : '—', orig: aggregateAv.origIdealCross > 0 ? `R${aggregateAv.origIdealCross}` : '—', winner: dsrWinsCross },
                         { label: 'Consistency (lower = better)', dsr: '±' + aggregateAv.stdevDsr.toFixed(2), orig: '±' + aggregateAv.stdevOrig.toFixed(2), winner: dsrWinsStable },
                       ].map((m, i) => (
-                        <div key={i} className="bg-slate-950 border border-slate-800 rounded-xl p-4">
+                        <div key={i} className="glass-card rounded-xl p-4">
                           <div className="text-[11px] uppercase tracking-wider text-slate-500 mb-3">{m.label}</div>
                           <div className="space-y-2">
                             <div className="flex justify-between items-center text-sm"><span className="text-blue-400">DES</span><span className="font-mono font-bold text-blue-300">{m.orig}</span></div>
-                            <div className="flex justify-between items-center text-sm"><span className="text-amber-400">DSR</span><span className="font-mono font-bold text-amber-300">{m.dsr}</span></div>
+                            <div className="flex justify-between items-center text-sm"><span className="text-cyan-400">DSR</span><span className="font-mono font-bold text-cyan-300">{m.dsr}</span></div>
                           </div>
-                          <div className={`mt-3 text-[11px] font-bold uppercase text-center py-1 rounded ${m.winner ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30' : 'bg-blue-500/10 text-blue-300 border border-blue-500/20'}`}>
+                          <div className={`mt-3 text-[11px] font-bold uppercase text-center py-1 rounded ${m.winner ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/30' : 'bg-blue-500/10 text-blue-300 border border-blue-500/20'}`}>
                             Winner: {m.winner ? 'DSR' : 'DES'}
                           </div>
                         </div>
@@ -1114,8 +1124,8 @@ export default function App() {
                     </div>
 
                     {/* Aggregate per-round chart */}
-                    <div className="bg-slate-950 rounded-lg border border-slate-800 p-4">
-                      <h3 className="text-sm font-bold text-slate-200 mb-3 flex items-center gap-2"><Activity size={16} className="text-amber-400" /> Average Avalanche per Round (across all 64 bit positions)</h3>
+                    <div className="glass-card rounded-xl p-4">
+                      <h3 className="text-sm font-bold text-slate-200 mb-3 flex items-center gap-2"><Activity size={16} className="text-cyan-400" /> Average Avalanche per Round (across all 64 bit positions)</h3>
                       <svg viewBox="0 0 800 280" className="w-full h-auto">
                         {(() => {
                           const W = 800, H = 280, P = 36;
@@ -1148,7 +1158,7 @@ export default function App() {
                       </svg>
                       <div className="flex justify-center gap-6 mt-2 text-xs">
                         <span className="flex items-center gap-2"><span className="w-3 h-3 bg-blue-500 rounded-sm" /> Avg Original DES</span>
-                        <span className="flex items-center gap-2"><span className="w-3 h-3 bg-amber-500 rounded-sm" /> Avg Modified (DSR)</span>
+                        <span className="flex items-center gap-2"><span className="w-3 h-3 bg-cyan-500 rounded-sm" /> Avg Modified (DSR)</span>
                         <span className="flex items-center gap-2"><span className="w-3 h-0.5 bg-emerald-500" /> Ideal 50%</span>
                       </div>
                     </div>
@@ -1163,34 +1173,34 @@ export default function App() {
         {tab === 'performance' && (
           <div className="space-y-6 animate-in fade-in duration-300">
             <div className="grid md:grid-cols-3 gap-4">
-              <div className="bg-slate-900 p-6 rounded-xl border border-slate-800">
-                <h4 className="font-bold text-amber-400 mb-3 flex items-center gap-2"><FastForward size={18} /> What it measures</h4>
+              <div className="bg-black/20 p-6 rounded-xl border border-cyan-900/25">
+                <h4 className="font-bold text-cyan-400 mb-3 flex items-center gap-2"><FastForward size={18} /> What it measures</h4>
                 <p className="text-sm text-slate-400 leading-relaxed">Wall-clock time to encrypt N 64-bit blocks with both algorithms, and the resulting throughput in KB/s.</p>
               </div>
-              <div className="bg-slate-900 p-6 rounded-xl border border-slate-800">
-                <h4 className="font-bold text-amber-400 mb-3 flex items-center gap-2"><Cpu size={18} /> How we test</h4>
+              <div className="bg-black/20 p-6 rounded-xl border border-cyan-900/25">
+                <h4 className="font-bold text-cyan-400 mb-3 flex items-center gap-2"><Cpu size={18} /> How we test</h4>
                 <ol className="text-sm text-slate-400 list-decimal list-inside space-y-2 leading-relaxed">
                   <li>Encrypt the same block N times.</li>
-                  <li>Time each algorithm with <code className="text-amber-300 bg-amber-500/10 px-1 rounded">performance.now()</code>.</li>
+                  <li>Time each algorithm with <code className="text-cyan-300 bg-cyan-500/10 px-1 rounded">performance.now()</code>.</li>
                   <li>Compare runtime and throughput.</li>
                 </ol>
               </div>
-              <div className="bg-slate-900 p-6 rounded-xl border border-slate-800">
-                <h4 className="font-bold text-amber-400 mb-3 flex items-center gap-2"><Activity size={18} /> Why it matters</h4>
+              <div className="bg-black/20 p-6 rounded-xl border border-cyan-900/25">
+                <h4 className="font-bold text-cyan-400 mb-3 flex items-center gap-2"><Activity size={18} /> Why it matters</h4>
                 <p className="text-sm text-slate-400 leading-relaxed">DSR adds one circular-shift step per round. We expect minimal overhead (&lt; ~5%) — proving the security gain is essentially free.</p>
               </div>
             </div>
 
-            <div className="bg-slate-900 rounded-xl border border-slate-800 p-6">
+            <div className="glass-card-strong rounded-2xl p-6">
               <div className="flex items-center justify-between mb-6">
-                <h4 className="font-bold text-slate-200 flex items-center gap-2"><Database size={18} className="text-amber-400" /> Live Benchmark</h4>
+                <h4 className="font-bold text-slate-200 flex items-center gap-2"><Database size={18} className="text-cyan-400" /> Live Benchmark</h4>
                 <button onClick={runBenchmark} disabled={perfRunning}
-                  className="bg-amber-500 hover:bg-amber-400 text-slate-950 font-semibold px-4 py-2 rounded-lg flex items-center gap-2 disabled:opacity-50">
+                  className="bg-cyan-500 hover:bg-amber-400 text-slate-950 font-semibold px-4 py-2 rounded-lg flex items-center gap-2 disabled:opacity-50">
                   <Play size={14} /> {perfRunning ? 'Running…' : (perfResults ? 'Re-run' : 'Run Benchmark')}
                 </button>
               </div>
-              {!perfResults && !perfRunning && <p className="text-sm text-slate-400">Click <strong className="text-amber-400">Run Benchmark</strong> to time the algorithm in your browser.</p>}
-              {perfRunning && <p className="text-sm text-amber-400 animate-pulse">Encrypting blocks…</p>}
+              {!perfResults && !perfRunning && <p className="text-sm text-slate-400">Click <strong className="text-cyan-400">Run Benchmark</strong> to time the algorithm in your browser.</p>}
+              {perfRunning && <p className="text-sm text-cyan-400 animate-pulse">Encrypting blocks…</p>}
               {perfResults && (
                 <div className="space-y-6">
                   {(() => {
@@ -1201,13 +1211,13 @@ export default function App() {
                         <div className="space-y-3">
                           <div className="flex items-center gap-4">
                             <div className="w-28 text-sm text-blue-400 text-right font-medium">Original DES</div>
-                            <div className="flex-1 h-3 bg-slate-950 rounded-full overflow-hidden"><div className="bg-blue-600 h-full" style={{ width: `${(r.origMs / maxTime) * 100}%` }}></div></div>
+                            <div className="flex-1 h-3 bg-black/60 rounded-full overflow-hidden"><div className="bg-blue-600 h-full" style={{ width: `${(r.origMs / maxTime) * 100}%` }}></div></div>
                             <div className="w-24 text-sm text-blue-300 font-mono text-right">{r.origMs.toFixed(2)}ms</div>
                           </div>
                           <div className="flex items-center gap-4">
-                            <div className="w-28 text-sm text-amber-400 text-right font-medium">Modified DES</div>
-                            <div className="flex-1 h-3 bg-slate-950 rounded-full overflow-hidden"><div className="bg-amber-500 h-full shadow-[0_0_10px_rgba(245,158,11,0.4)]" style={{ width: `${(r.dsrMs / maxTime) * 100}%` }}></div></div>
-                            <div className="w-24 text-sm text-amber-300 font-mono text-right">{r.dsrMs.toFixed(2)}ms</div>
+                            <div className="w-28 text-sm text-cyan-400 text-right font-medium">Modified DES</div>
+                            <div className="flex-1 h-3 bg-black/60 rounded-full overflow-hidden"><div className="bg-cyan-500 h-full shadow-[0_0_10px_rgba(245,158,11,0.4)]" style={{ width: `${(r.dsrMs / maxTime) * 100}%` }}></div></div>
+                            <div className="w-24 text-sm text-cyan-300 font-mono text-right">{r.dsrMs.toFixed(2)}ms</div>
                           </div>
                         </div>
                       </div>
@@ -1216,10 +1226,10 @@ export default function App() {
                   <div className="overflow-x-auto pt-4 border-t border-slate-800">
                     <table className="w-full text-sm min-w-[500px]">
                       <thead>
-                        <tr className="border-b border-slate-800">
+                        <tr className="border-b border-cyan-900/20">
                           <th className="text-left text-slate-500 font-semibold pb-3 pr-4">Size</th>
                           <th className="text-right text-blue-400 font-semibold pb-3 px-4">Original (KB/s)</th>
-                          <th className="text-right text-amber-400 font-semibold pb-3 px-4">DSR (KB/s)</th>
+                          <th className="text-right text-cyan-400 font-semibold pb-3 px-4">DSR (KB/s)</th>
                           <th className="text-right text-slate-400 font-semibold pb-3 pl-4">Overhead</th>
                         </tr>
                       </thead>
@@ -1230,9 +1240,9 @@ export default function App() {
                             <tr key={i} className="hover:bg-slate-800/40">
                               <td className="py-3 pr-4 text-slate-300 font-mono">{r.size}</td>
                               <td className="py-3 px-4 text-right text-blue-300 font-mono">{r.origThroughput.toFixed(1)}</td>
-                              <td className="py-3 px-4 text-right text-amber-300 font-mono">{r.dsrThroughput.toFixed(1)}</td>
+                              <td className="py-3 px-4 text-right text-cyan-300 font-mono">{r.dsrThroughput.toFixed(1)}</td>
                               <td className="py-3 pl-4 text-right">
-                                <span className={`font-mono font-semibold ${overhead < 5 ? 'text-emerald-400' : 'text-amber-400'}`}>
+                                <span className={`font-mono font-semibold ${overhead < 5 ? 'text-emerald-400' : 'text-cyan-400'}`}>
                                   {overhead >= 0 ? '+' : ''}{overhead.toFixed(1)}%
                                 </span>
                               </td>
@@ -1251,14 +1261,14 @@ export default function App() {
               const dsrWins = avgOverhead < 5;
               return (
                 <>
-                  <div className={`bg-gradient-to-r ${dsrWins ? 'from-amber-500/10 to-emerald-500/10 border-amber-500/30' : 'from-red-500/10 to-amber-500/10 border-red-500/30'} border rounded-xl p-5 flex items-start gap-3`}>
-                    <CheckCircle2 className="text-amber-400 shrink-0 mt-0.5" size={22} />
+                  <div className={`bg-gradient-to-r ${dsrWins ? 'from-amber-500/10 to-emerald-500/10 border-cyan-500/30' : 'from-red-500/10 to-amber-500/10 border-red-500/30'} border rounded-xl p-5 flex items-start gap-3`}>
+                    <CheckCircle2 className="text-cyan-400 shrink-0 mt-0.5" size={22} />
                     <div className="text-sm text-slate-200 leading-relaxed">
-                      <strong className="text-amber-400">In plain English:</strong> DSR runs only <strong className="text-amber-300">{avgOverhead >= 0 ? '+' : ''}{avgOverhead.toFixed(2)}%</strong> slower than the original DES on average across these stream sizes. Translation: you get the security boost essentially for free — a circular shift is a single CPU instruction.
+                      <strong className="text-cyan-400">In plain English:</strong> DSR runs only <strong className="text-cyan-300">{avgOverhead >= 0 ? '+' : ''}{avgOverhead.toFixed(2)}%</strong> slower than the original DES on average across these stream sizes. Translation: you get the security boost essentially for free — a circular shift is a single CPU instruction.
                     </div>
                   </div>
-                  <div className="bg-slate-900 border border-slate-800 rounded-xl p-6">
-                    <h4 className="text-amber-400 font-bold mb-2 flex items-center gap-2"><CheckCircle2 size={18} /> Why DSR wins this test</h4>
+                  <div className="glass-card-strong rounded-2xl p-6">
+                    <h4 className="text-cyan-400 font-bold mb-2 flex items-center gap-2"><CheckCircle2 size={18} /> Why DSR wins this test</h4>
                     <ul className="text-slate-300 text-sm leading-relaxed space-y-1.5 list-disc list-inside">
                       <li>The added "Dynamic Circular Left Shift" is a one-clock CPU op — modern processors execute it in the same cycle as a normal arithmetic step.</li>
                       <li>No new memory allocations, no extra lookups, no branching that depends on data layout.</li>
@@ -1275,32 +1285,32 @@ export default function App() {
         {tab === 'entropy' && (
           <div className="space-y-6 animate-in fade-in duration-300">
             <div className="grid md:grid-cols-3 gap-4">
-              <div className="bg-slate-900 p-6 rounded-xl border border-slate-800">
-                <h4 className="font-bold text-amber-400 mb-3 flex items-center gap-2"><BarChart2 size={18} /> What it is</h4>
+              <div className="bg-black/20 p-6 rounded-xl border border-cyan-900/25">
+                <h4 className="font-bold text-cyan-400 mb-3 flex items-center gap-2"><BarChart2 size={18} /> What it is</h4>
                 <p className="text-sm text-slate-400 leading-relaxed">Shannon entropy H scores byte-level unpredictability from 0 to <strong className="text-slate-300">8.0</strong>. Closer to 8 = more random.</p>
               </div>
-              <div className="bg-slate-900 p-6 rounded-xl border border-slate-800">
-                <h4 className="font-bold text-amber-400 mb-3 flex items-center gap-2"><Shuffle size={18} /> How we test</h4>
+              <div className="bg-black/20 p-6 rounded-xl border border-cyan-900/25">
+                <h4 className="font-bold text-cyan-400 mb-3 flex items-center gap-2"><Shuffle size={18} /> How we test</h4>
                 <ol className="text-sm text-slate-400 list-decimal list-inside space-y-2 leading-relaxed">
                   <li>Encrypt 64 variants of each plaintext.</li>
                   <li>Concatenate ciphertexts and count byte frequencies.</li>
                   <li>Apply H = −Σ p log₂ p.</li>
                 </ol>
               </div>
-              <div className="bg-slate-900 p-6 rounded-xl border border-slate-800">
-                <h4 className="font-bold text-amber-400 mb-3 flex items-center gap-2"><Binary size={18} /> Why it matters</h4>
+              <div className="bg-black/20 p-6 rounded-xl border border-cyan-900/25">
+                <h4 className="font-bold text-cyan-400 mb-3 flex items-center gap-2"><Binary size={18} /> Why it matters</h4>
                 <p className="text-sm text-slate-400 leading-relaxed">If DSR scores at or above original DES, we know the modification adds no statistical bias.</p>
               </div>
             </div>
 
-            <div className="bg-slate-900 rounded-xl border border-slate-800 p-6">
+            <div className="glass-card-strong rounded-2xl p-6">
               <div className="flex items-center justify-between mb-6">
-                <h4 className="font-bold text-slate-200 flex items-center gap-2"><Database size={18} className="text-amber-400" /> Sample Battery</h4>
-                <button onClick={runEntropyTable} className="bg-amber-500 hover:bg-amber-400 text-slate-950 font-semibold px-4 py-2 rounded-lg flex items-center gap-2">
+                <h4 className="font-bold text-slate-200 flex items-center gap-2"><Database size={18} className="text-cyan-400" /> Sample Battery</h4>
+                <button onClick={runEntropyTable} className="bg-cyan-500 hover:bg-amber-400 text-slate-950 font-semibold px-4 py-2 rounded-lg flex items-center gap-2">
                   <Play size={14} /> {entropyTable ? 'Re-run' : 'Compute Entropy'}
                 </button>
               </div>
-              {!entropyTable && <p className="text-sm text-slate-400">Click <strong className="text-amber-400">Compute Entropy</strong> to measure byte-level randomness across multiple samples.</p>}
+              {!entropyTable && <p className="text-sm text-slate-400">Click <strong className="text-cyan-400">Compute Entropy</strong> to measure byte-level randomness across multiple samples.</p>}
               {entropyTable && (() => {
                 const avgOrig = entropyTable.reduce((s, r) => s + r.origH, 0) / entropyTable.length;
                 const avgDsr = entropyTable.reduce((s, r) => s + r.dsrH, 0) / entropyTable.length;
@@ -1329,11 +1339,11 @@ export default function App() {
                 };
                 return (
                   <div className="space-y-6">
-                    <div className="flex flex-col sm:flex-row items-center justify-around gap-8 py-6 border-b border-slate-800">
+                    <div className="flex flex-col sm:flex-row items-center justify-around gap-8 py-6 border-b border-cyan-900/20">
                       <Gauge value={avgOrig} color="#3b82f6" label="Original DES" />
                       <div className="flex flex-col items-center gap-2">
                         <div className="text-xs text-slate-500 uppercase tracking-widest">Difference</div>
-                        <div className={`text-2xl font-extrabold font-mono ${avgDsr >= avgOrig ? 'text-amber-400' : 'text-red-400'}`}>
+                        <div className={`text-2xl font-extrabold font-mono ${avgDsr >= avgOrig ? 'text-cyan-400' : 'text-red-400'}`}>
                           {avgDsr >= avgOrig ? '+' : ''}{(avgDsr - avgOrig).toFixed(4)}
                         </div>
                         <div className="text-xs text-slate-500">bits / byte</div>
@@ -1343,10 +1353,10 @@ export default function App() {
                     <div className="overflow-x-auto">
                       <table className="w-full text-sm min-w-[500px]">
                         <thead>
-                          <tr className="border-b border-slate-800">
+                          <tr className="border-b border-cyan-900/20">
                             <th className="text-left text-slate-500 font-semibold pb-3 pr-4">Plaintext Sample</th>
                             <th className="text-right text-blue-400 font-semibold pb-3 px-4">Original (H)</th>
-                            <th className="text-right text-amber-400 font-semibold pb-3 px-4">DSR (H)</th>
+                            <th className="text-right text-cyan-400 font-semibold pb-3 px-4">DSR (H)</th>
                             <th className="text-right text-slate-400 font-semibold pb-3 pl-4">Δ</th>
                           </tr>
                         </thead>
@@ -1357,7 +1367,7 @@ export default function App() {
                               <tr key={i} className="hover:bg-slate-800/40">
                                 <td className="py-3 pr-4 text-slate-300 font-mono text-xs">"{r.sample}"</td>
                                 <td className="py-3 px-4 text-right text-blue-300 font-mono">{r.origH.toFixed(4)}</td>
-                                <td className="py-3 px-4 text-right text-amber-300 font-mono">{r.dsrH.toFixed(4)}</td>
+                                <td className="py-3 px-4 text-right text-cyan-300 font-mono">{r.dsrH.toFixed(4)}</td>
                                 <td className="py-3 pl-4 text-right">
                                   <span className={`font-mono font-semibold ${d >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
                                     {d >= 0 ? '+' : ''}{d.toFixed(4)}
@@ -1369,8 +1379,8 @@ export default function App() {
                           <tr className="border-t-2 border-slate-700 bg-slate-800/30">
                             <td className="py-3 pr-4 text-slate-300 font-bold text-xs">Average</td>
                             <td className="py-3 px-4 text-right text-blue-400 font-mono font-bold">{avgOrig.toFixed(4)}</td>
-                            <td className="py-3 px-4 text-right text-amber-400 font-mono font-bold">{avgDsr.toFixed(4)}</td>
-                            <td className="py-3 pl-4 text-right text-amber-400 font-mono font-bold">{avgDsr >= avgOrig ? '+' : ''}{(avgDsr - avgOrig).toFixed(4)}</td>
+                            <td className="py-3 px-4 text-right text-cyan-400 font-mono font-bold">{avgDsr.toFixed(4)}</td>
+                            <td className="py-3 pl-4 text-right text-cyan-400 font-mono font-bold">{avgDsr >= avgOrig ? '+' : ''}{(avgDsr - avgOrig).toFixed(4)}</td>
                           </tr>
                         </tbody>
                       </table>
@@ -1385,30 +1395,30 @@ export default function App() {
               const avgDsr = entropyTable.reduce((s, r) => s + r.dsrH, 0) / entropyTable.length;
               const dsrWins = avgDsr >= avgOrig;
               return (
-                <div className={`bg-gradient-to-r ${dsrWins ? 'from-amber-500/10 to-emerald-500/10 border-amber-500/30' : 'from-red-500/10 to-amber-500/10 border-red-500/30'} border rounded-xl p-5 flex items-start gap-3`}>
-                  <CheckCircle2 className="text-amber-400 shrink-0 mt-0.5" size={22} />
+                <div className={`bg-gradient-to-r ${dsrWins ? 'from-amber-500/10 to-emerald-500/10 border-cyan-500/30' : 'from-red-500/10 to-amber-500/10 border-red-500/30'} border rounded-xl p-5 flex items-start gap-3`}>
+                  <CheckCircle2 className="text-cyan-400 shrink-0 mt-0.5" size={22} />
                   <div className="text-sm text-slate-200 leading-relaxed">
-                    <strong className="text-amber-400">In plain English:</strong> a higher entropy score means the encrypted output looks more random — which is exactly what attackers can't predict. DSR averages <strong className="text-amber-300">{avgDsr.toFixed(4)}</strong> bits/byte vs original DES at <strong className="text-blue-300">{avgOrig.toFixed(4)}</strong>. {dsrWins ? <>That's a +{(avgDsr - avgOrig).toFixed(4)} improvement — DSR's shifting step adds randomness <strong className="text-amber-300">without introducing any new statistical bias</strong>.</> : <>The original is slightly higher here, but both scores are within rounding of the theoretical max (8.0).</>}
+                    <strong className="text-cyan-400">In plain English:</strong> a higher entropy score means the encrypted output looks more random — which is exactly what attackers can't predict. DSR averages <strong className="text-cyan-300">{avgDsr.toFixed(4)}</strong> bits/byte vs original DES at <strong className="text-blue-300">{avgOrig.toFixed(4)}</strong>. {dsrWins ? <>That's a +{(avgDsr - avgOrig).toFixed(4)} improvement — DSR's shifting step adds randomness <strong className="text-cyan-300">without introducing any new statistical bias</strong>.</> : <>The original is slightly higher here, but both scores are within rounding of the theoretical max (8.0).</>}
                   </div>
                 </div>
               );
             })()}
 
             {entropyResult && (
-              <div className="bg-slate-900 border border-slate-800 rounded-xl p-6 space-y-3">
-                <h4 className="text-amber-400 font-semibold flex items-center gap-2"><Info size={16} /> Entropy of YOUR last encryption</h4>
+              <div className="glass-card-strong rounded-2xl p-6 space-y-3">
+                <h4 className="text-cyan-400 font-semibold flex items-center gap-2"><Info size={16} /> Entropy of YOUR last encryption</h4>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm">
-                  <div className="bg-slate-950 border border-slate-800 rounded-lg p-3">
+                  <div className="glass-card rounded-lg p-3">
                     <div className="text-xs text-slate-500 uppercase">Plaintext H</div>
-                    <div className="text-emerald-400 font-mono text-xl">{entropyResult.H_plain.toFixed(4)}</div>
+                    <div className="text-cyan-300 font-mono text-xl">{entropyResult.H_plain.toFixed(4)}</div>
                   </div>
-                  <div className="bg-slate-950 border border-slate-800 rounded-lg p-3">
+                  <div className="glass-card rounded-lg p-3">
                     <div className="text-xs text-slate-500 uppercase">Original DES H</div>
                     <div className="text-blue-400 font-mono text-xl">{entropyResult.H_orig.toFixed(4)}</div>
                   </div>
-                  <div className="bg-slate-950 border border-slate-800 rounded-lg p-3">
+                  <div className="glass-card rounded-lg p-3">
                     <div className="text-xs text-slate-500 uppercase">DSR H</div>
-                    <div className="text-amber-400 font-mono text-xl">{entropyResult.H_dsr.toFixed(4)}</div>
+                    <div className="text-cyan-400 font-mono text-xl">{entropyResult.H_dsr.toFixed(4)}</div>
                   </div>
                 </div>
                 <p className="text-xs text-slate-500">Scores above are computed over a 64-block stream derived from your plaintext (last byte varied), so the result is in the meaningful 7.9xxx range. A raw single-block score would always cap at log₂(8) = 3.0 bits/byte.</p>
@@ -1421,7 +1431,7 @@ export default function App() {
         {tab === 'explanation' && (
           <div className="space-y-6 animate-in fade-in duration-300">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="bg-slate-900 border border-slate-800 rounded-xl p-6 shadow-md">
+              <div className="glass-card-strong rounded-2xl p-6 shadow-md">
                 <div className="w-10 h-10 rounded-full bg-blue-500/20 flex items-center justify-center mb-4 text-blue-400"><Info size={24} /></div>
                 <h3 className="text-xl font-bold text-slate-100 mb-3">The Limitation of Original DES</h3>
                 <p className="text-slate-400 text-sm leading-relaxed mb-4">
@@ -1431,27 +1441,27 @@ export default function App() {
                   Because this routing is predictable, differential cryptanalysis can track specific bit changes. It also takes multiple rounds for a single flipped bit to reach all 8 S-Boxes.
                 </p>
               </div>
-              <div className="bg-gradient-to-br from-slate-900 to-amber-950/30 border border-amber-500/20 rounded-xl p-6 shadow-md relative overflow-hidden">
-                <div className="absolute -right-4 -top-4 text-amber-500/10"><Cpu size={120} /></div>
-                <div className="w-10 h-10 rounded-full bg-amber-500/20 flex items-center justify-center mb-4 text-amber-400 relative z-10"><Zap size={24} /></div>
-                <h3 className="text-xl font-bold text-amber-400 mb-3 relative z-10">Why Our Modified DSR is Better</h3>
+              <div className="bg-gradient-to-br from-slate-900 to-amber-950/30 border border-cyan-500/20 rounded-xl p-6 shadow-md relative overflow-hidden">
+                <div className="absolute -right-4 -top-4 text-cyan-500/10"><Cpu size={120} /></div>
+                <div className="w-10 h-10 rounded-full bg-cyan-500/20 flex items-center justify-center mb-4 text-cyan-400 relative z-10"><Zap size={24} /></div>
+                <h3 className="text-xl font-bold text-cyan-400 mb-3 relative z-10">Why Our Modified DSR is Better</h3>
                 <p className="text-slate-300 text-sm leading-relaxed mb-4 relative z-10">
                   DSR intercepts the 32-bit S-Box output and applies a <strong>data-dependent left circular shift</strong> (decimal value of the first 5 bits of the S-box output, 0–31) <i>before</i> the P-Box.
                 </p>
                 <ul className="space-y-2 text-sm text-slate-300 relative z-10">
-                  <li className="flex items-start gap-2"><div className="mt-1 w-1.5 h-1.5 rounded-full bg-amber-500 shrink-0" /><span><strong>Dynamic Routing:</strong> Output bits land in different positions each round.</span></li>
-                  <li className="flex items-start gap-2"><div className="mt-1 w-1.5 h-1.5 rounded-full bg-amber-500 shrink-0" /><span><strong>Accelerated Diffusion:</strong> Reaches the ideal ~50% avalanche faster.</span></li>
-                  <li className="flex items-start gap-2"><div className="mt-1 w-1.5 h-1.5 rounded-full bg-amber-500 shrink-0" /><span><strong>Cryptanalytic Resistance:</strong> Breaks the linear characteristics differential attacks exploit.</span></li>
+                  <li className="flex items-start gap-2"><div className="mt-1 w-1.5 h-1.5 rounded-full bg-cyan-500 shrink-0" /><span><strong>Dynamic Routing:</strong> Output bits land in different positions each round.</span></li>
+                  <li className="flex items-start gap-2"><div className="mt-1 w-1.5 h-1.5 rounded-full bg-cyan-500 shrink-0" /><span><strong>Accelerated Diffusion:</strong> Reaches the ideal ~50% avalanche faster.</span></li>
+                  <li className="flex items-start gap-2"><div className="mt-1 w-1.5 h-1.5 rounded-full bg-cyan-500 shrink-0" /><span><strong>Cryptanalytic Resistance:</strong> Breaks the linear characteristics differential attacks exploit.</span></li>
                 </ul>
               </div>
             </div>
 
-            <div className="bg-slate-900 border border-slate-800 rounded-xl p-6 shadow-md space-y-4">
-              <h3 className="text-lg font-bold text-slate-100 flex items-center gap-2"><List size={18} className="text-amber-400" /> DSR in 5 Steps</h3>
+            <div className="glass-card-strong rounded-2xl p-6 shadow-md space-y-4">
+              <h3 className="text-lg font-bold text-slate-100 flex items-center gap-2"><List size={18} className="text-cyan-400" /> DSR in 5 Steps</h3>
               <ol className="space-y-3 text-sm text-slate-300 list-decimal list-inside leading-relaxed">
                 <li>The 32-bit right half R<sub>i−1</sub> is expanded to 48 bits via the E-box.</li>
                 <li>The expanded data is XORed with the round key, then passed through the S-boxes to produce 32 bits.</li>
-                <li><strong className="text-amber-400">DSR step:</strong> Take the first 5 bits of the S-box output, convert to decimal n, and circular-left-shift the 32-bit block by n positions.</li>
+                <li><strong className="text-cyan-400">DSR step:</strong> Take the first 5 bits of the S-box output, convert to decimal n, and circular-left-shift the 32-bit block by n positions.</li>
                 <li>The shifted block goes through the fixed P-box.</li>
                 <li>XOR with L<sub>i−1</sub> to produce the new R<sub>i</sub>.</li>
               </ol>
@@ -1459,8 +1469,8 @@ export default function App() {
             </div>
 
             {/* Visual round comparison */}
-            <div className="bg-slate-900 border border-slate-800 rounded-xl p-6 shadow-md">
-              <h3 className="text-lg font-bold text-slate-100 flex items-center gap-2 mb-1"><Eye size={18} className="text-amber-400" /> One Round, Side-by-Side</h3>
+            <div className="glass-card-strong rounded-2xl p-6 shadow-md">
+              <h3 className="text-lg font-bold text-slate-100 flex items-center gap-2 mb-1"><Eye size={18} className="text-cyan-400" /> One Round, Side-by-Side</h3>
               <p className="text-sm text-slate-400 mb-5">Watch where the data goes inside a single round. The only difference is the orange step.</p>
               <div className="grid md:grid-cols-2 gap-5">
                 {[
@@ -1482,15 +1492,15 @@ export default function App() {
                     { label: 'XOR with left half', sub: 'Becomes new R', tone: 'slate' },
                   ]},
                 ].map((col) => (
-                  <div key={col.title} className={`bg-slate-950 border ${col.color === 'amber' ? 'border-amber-500/30' : 'border-blue-500/30'} rounded-xl p-4`}>
-                    <div className={`text-sm font-bold uppercase tracking-wider mb-4 ${col.color === 'amber' ? 'text-amber-400' : 'text-blue-400'}`}>{col.title}</div>
+                  <div key={col.title} className={`bg-black/60 border ${col.color === 'amber' ? 'border-cyan-500/30' : 'border-blue-500/30'} rounded-xl p-4`}>
+                    <div className={`text-sm font-bold uppercase tracking-wider mb-4 ${col.color === 'amber' ? 'text-cyan-400' : 'text-blue-400'}`}>{col.title}</div>
                     <div className="space-y-2">
                       {col.steps.map((s, i) => {
                         const tones = {
-                          slate: 'bg-slate-900 border-slate-800 text-slate-300',
+                          slate: 'bg-black/20 border-slate-800 text-slate-300',
                           blue: 'bg-blue-500/10 border-blue-500/30 text-blue-200',
-                          amber: 'bg-amber-500/10 border-amber-500/30 text-amber-200',
-                          orange: 'bg-gradient-to-r from-orange-500/30 to-amber-500/30 border-orange-400/50 text-orange-100 shadow-[0_0_15px_rgba(249,115,22,0.3)]',
+                          amber: 'bg-cyan-500/10 border-cyan-500/30 text-cyan-200',
+                          orange: 'bg-gradient-to-r from-cyan-500/20 to-blue-500/20 border-cyan-400/60 text-cyan-100 shadow-[0_0_15px_rgba(0,180,216,0.4)]',
                         };
                         return (
                           <div key={i}>
@@ -1506,22 +1516,22 @@ export default function App() {
                   </div>
                 ))}
               </div>
-              <div className="mt-5 bg-amber-500/5 border border-amber-500/20 rounded-lg p-4 text-sm text-slate-300 leading-relaxed">
-                <strong className="text-amber-400">Why this matters:</strong> in the original, every bit always travels the same wire. In DSR, the wires effectively change every round because we shift the bits before they enter the P-box. One small step → much faster diffusion → harder cryptanalysis.
+              <div className="mt-5 bg-cyan-500/5 border border-cyan-500/20 rounded-lg p-4 text-sm text-slate-300 leading-relaxed">
+                <strong className="text-cyan-400">Why this matters:</strong> in the original, every bit always travels the same wire. In DSR, the wires effectively change every round because we shift the bits before they enter the P-box. One small step → much faster diffusion → harder cryptanalysis.
               </div>
             </div>
 
             {/* Definitive "Why DSR always wins" summary */}
-            <div className="bg-gradient-to-br from-amber-950/30 to-emerald-950/20 border border-amber-500/30 rounded-xl p-6 shadow-md">
-              <h3 className="text-lg font-bold text-amber-400 flex items-center gap-2 mb-4"><CheckCircle2 size={20} /> Why DSR Always Wins These Tests</h3>
+            <div className="glass-card-strong winner-banner rounded-xl p-6 shadow-md">
+              <h3 className="text-lg font-bold text-cyan-400 flex items-center gap-2 mb-4"><CheckCircle2 size={20} /> Why DSR Always Wins These Tests</h3>
               <div className="grid md:grid-cols-3 gap-4 text-sm">
                 {[
                   { test: 'Avalanche', why: 'Reaches 50% diffusion sooner and stays more consistent across inputs because each round routes bits differently.' },
                   { test: 'Performance', why: 'A circular shift is one CPU instruction. The added cost is small enough to be lost in measurement noise.' },
                   { test: 'Shannon Entropy', why: 'Higher byte-level randomness without introducing any predictable patterns — the shift adds entropy, not bias.' },
                 ].map((c, i) => (
-                  <div key={i} className="bg-slate-950/60 border border-slate-800 rounded-lg p-4">
-                    <div className="text-amber-400 font-bold text-sm uppercase tracking-wider mb-2">{c.test}</div>
+                  <div key={i} className="glass-card rounded-lg p-4">
+                    <div className="text-cyan-400 font-bold text-sm uppercase tracking-wider mb-2">{c.test}</div>
                     <p className="text-slate-300 leading-relaxed">{c.why}</p>
                   </div>
                 ))}
