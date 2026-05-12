@@ -440,7 +440,7 @@ export default function App() {
       <button
         onClick={() => setTab(id)}
         className={
-          'relative px-4 py-2 rounded-xl font-medium text-sm transition-all flex items-center gap-1.5 ' +
+          'relative px-2.5 sm:px-4 py-1.5 sm:py-2 rounded-xl font-medium text-xs sm:text-sm transition-all flex items-center gap-1 sm:gap-1.5 ' +
           (active
             ? 'bg-cyan-500/15 border border-cyan-500/50 text-cyan-300 shadow-[0_0_12px_rgba(0,180,216,0.2)]'
             : 'border border-transparent text-slate-400 hover:text-cyan-300 hover:bg-cyan-500/5')
@@ -464,47 +464,51 @@ export default function App() {
     const accentClass = isDecrypt ? 'text-emerald-400' : 'text-blue-400';
     const stateColor = isDecrypt ? 'text-emerald-300' : 'text-sky-300';
     return (
-      <div className="glass-card rounded-xl overflow-hidden">
-        {/* Header: Stage(1) L(2) R(2) State(3) Shift(1) Subkey(3) = 12 */}
-        <div className="grid grid-cols-12 gap-1 px-3 py-2 text-[10px] uppercase font-bold tracking-wider text-slate-500 border-b border-cyan-900/30 bg-black/40">
-          <div className="col-span-1">Stage</div>
-          <div className="col-span-2">L (32-bit)</div>
-          <div className="col-span-2">R (32-bit)</div>
-          <div className="col-span-3 text-sky-400">Plaintext (L‖R)</div>
-          <div className="col-span-1">Shift</div>
-          <div className="col-span-3">Subkey (48-bit)</div>
-        </div>
-        <div className="max-h-[420px] overflow-y-auto">
-          {/* Input row (before IP) — full-width flex to avoid grid overflow */}
-          {inputHex && (
-            <div className="flex items-center gap-3 px-3 py-2 text-xs font-mono border-b border-cyan-900/20 bg-black/30 flex-wrap">
-              <span className="font-bold text-slate-400 text-[10px] uppercase tracking-wider shrink-0 w-10">
-                {isDecrypt ? 'CT' : 'PT'}
-              </span>
-              <span className="text-yellow-300 font-bold tracking-wider">{inputHex}</span>
-              <span className="text-slate-600 text-[10px] italic">← raw input, before Initial Permutation</span>
+      <div className="glass-card rounded-xl">
+        <div className="overflow-x-auto">
+          <div style={{minWidth:'560px'}}>
+            {/* Header: Stage(1) L(2) R(2) State(3) Shift(1) Subkey(3) = 12 */}
+            <div className="grid grid-cols-12 gap-1 px-3 py-2 text-[10px] uppercase font-bold tracking-wider text-slate-500 border-b border-cyan-900/30 bg-black/40">
+              <div className="col-span-1">Stage</div>
+              <div className="col-span-2">L (32-bit)</div>
+              <div className="col-span-2">R (32-bit)</div>
+              <div className="col-span-3 text-sky-400">Plaintext (L‖R)</div>
+              <div className="col-span-1">Shift</div>
+              <div className="col-span-3">Subkey (48-bit)</div>
             </div>
-          )}
-          {trace.rounds.map((r, i) => {
-            const stateHex = bitsToHex(r.L) + bitsToHex(r.R);
-            const isIP = i === 0, isFinal = i === 16;
-            return (
-              <div key={i} className={`grid grid-cols-12 gap-1 px-3 py-1.5 text-xs font-mono border-b border-cyan-900/20 ${isIP ? 'bg-black/30' : isFinal ? 'bg-emerald-950/20' : ''}`}>
-                <div className={`col-span-1 font-bold ${isIP ? 'text-slate-500' : isFinal ? 'text-emerald-400' : accentClass}`}>
-                  {isIP ? 'IP' : isFinal ? 'Final' : `R${i}`}
+            <div className="max-h-[420px] overflow-y-auto">
+              {/* Input row (before IP) — full-width flex to avoid grid overflow */}
+              {inputHex && (
+                <div className="flex items-center gap-3 px-3 py-2 text-xs font-mono border-b border-cyan-900/20 bg-black/30 flex-wrap">
+                  <span className="font-bold text-slate-400 text-[10px] uppercase tracking-wider shrink-0 w-10">
+                    {isDecrypt ? 'CT' : 'PT'}
+                  </span>
+                  <span className="text-yellow-300 font-bold tracking-wider">{inputHex}</span>
+                  <span className="text-slate-600 text-[10px] italic">← raw input, before Initial Permutation</span>
                 </div>
-                <div className="col-span-2 text-slate-300">{bitsToHex(r.L)}</div>
-                <div className="col-span-2 text-slate-300">{bitsToHex(r.R)}</div>
-                <div className={`col-span-3 font-semibold text-[10px] ${isFinal ? 'text-emerald-300' : stateColor}`}>
-                  {stateHex}
-                </div>
-                <div className="col-span-1">
-                  {r.shiftVal !== null ? <span className="text-cyan-400 font-bold">{r.shiftVal}</span> : <span className="text-slate-700">—</span>}
-                </div>
-                <div className="col-span-3 text-slate-400 text-[10px] tracking-wide" title={r.subkey || ''}>{r.subkey || '—'}</div>
-              </div>
-            );
-          })}
+              )}
+              {trace.rounds.map((r, i) => {
+                const stateHex = bitsToHex(r.L) + bitsToHex(r.R);
+                const isIP = i === 0, isFinal = i === 16;
+                return (
+                  <div key={i} className={`grid grid-cols-12 gap-1 px-3 py-1.5 text-xs font-mono border-b border-cyan-900/20 ${isIP ? 'bg-black/30' : isFinal ? 'bg-emerald-950/20' : ''}`}>
+                    <div className={`col-span-1 font-bold ${isIP ? 'text-slate-500' : isFinal ? 'text-emerald-400' : accentClass}`}>
+                      {isIP ? 'IP' : isFinal ? 'Final' : `R${i}`}
+                    </div>
+                    <div className="col-span-2 text-slate-300">{bitsToHex(r.L)}</div>
+                    <div className="col-span-2 text-slate-300">{bitsToHex(r.R)}</div>
+                    <div className={`col-span-3 font-semibold text-[10px] ${isFinal ? 'text-emerald-300' : stateColor}`}>
+                      {stateHex}
+                    </div>
+                    <div className="col-span-1">
+                      {r.shiftVal !== null ? <span className="text-cyan-400 font-bold">{r.shiftVal}</span> : <span className="text-slate-700">—</span>}
+                    </div>
+                    <div className="col-span-3 text-slate-400 text-[10px] tracking-wide" title={r.subkey || ''}>{r.subkey || '—'}</div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
         </div>
         <div className="px-3 py-2 text-[11px] text-slate-500 bg-black/30 border-t border-cyan-900/30 flex flex-wrap gap-3">
           <span><span className="text-yellow-400 font-semibold">Yellow row</span> = raw hex before IP</span>
@@ -532,35 +536,39 @@ export default function App() {
       return { i, dr, or, dsrHex, origHex, diff, diffPct, isIP, isFinal };
     });
     return (
-      <div className="glass-card rounded-xl overflow-hidden">
-        <div className="grid grid-cols-12 gap-1 px-3 py-2 text-[10px] uppercase font-bold tracking-wider text-slate-500 border-b border-cyan-900/30 bg-black/40">
-          <div className="col-span-1">Round</div>
-          <div className="col-span-4 text-cyan-400">Modified DES (DSR)</div>
-          <div className="col-span-4 text-blue-400">Original DES</div>
-          <div className="col-span-1 text-cyan-400 text-center">Shift</div>
-          <div className="col-span-2 text-slate-400 text-right">Bit Δ</div>
-        </div>
-        <div className="max-h-[480px] overflow-y-auto">
-          {rows.map(({ i, dr, or, dsrHex, origHex, diff, diffPct, isIP, isFinal }) => {
-            const bg = isIP ? 'bg-black/25' : isFinal ? 'bg-emerald-950/20' : diff > 0 ? 'bg-blue-950/10' : '';
-            const roundLabel = isIP ? 'IP' : isFinal ? 'Final' : `R${i}`;
-            const labelColor = isIP ? 'text-slate-500' : isFinal ? 'text-emerald-400' : 'text-cyan-400';
-            return (
-              <div key={i} className={`grid grid-cols-12 gap-1 px-3 py-1.5 text-xs font-mono border-b border-cyan-900/20 ${bg}`}>
-                <div className={`col-span-1 font-bold ${labelColor}`}>{roundLabel}</div>
-                <div className="col-span-4 text-cyan-200 truncate" title={dsrHex}>{dsrHex}</div>
-                <div className="col-span-4 text-blue-200 truncate" title={origHex}>{origHex}</div>
-                <div className="col-span-1 text-center">
-                  {dr.shiftVal !== null ? <span className="text-cyan-400 font-bold">{dr.shiftVal}</span> : <span className="text-slate-700">—</span>}
-                </div>
-                <div className="col-span-2 text-right">
-                  {diff > 0
-                    ? <span className={`font-bold ${diff >= 24 ? 'text-emerald-400' : diff >= 12 ? 'text-yellow-400' : 'text-slate-400'}`}>{diffPct}%</span>
-                    : <span className="text-slate-700">—</span>}
-                </div>
-              </div>
-            );
-          })}
+      <div className="glass-card rounded-xl">
+        <div className="overflow-x-auto">
+          <div style={{minWidth:'560px'}}>
+            <div className="grid grid-cols-12 gap-1 px-3 py-2 text-[10px] uppercase font-bold tracking-wider text-slate-500 border-b border-cyan-900/30 bg-black/40">
+              <div className="col-span-1">Round</div>
+              <div className="col-span-4 text-cyan-400">Modified DES (DSR)</div>
+              <div className="col-span-4 text-blue-400">Original DES</div>
+              <div className="col-span-1 text-cyan-400 text-center">Shift</div>
+              <div className="col-span-2 text-slate-400 text-right">Bit Δ</div>
+            </div>
+            <div className="max-h-[480px] overflow-y-auto">
+              {rows.map(({ i, dr, or, dsrHex, origHex, diff, diffPct, isIP, isFinal }) => {
+                const bg = isIP ? 'bg-black/25' : isFinal ? 'bg-emerald-950/20' : diff > 0 ? 'bg-blue-950/10' : '';
+                const roundLabel = isIP ? 'IP' : isFinal ? 'Final' : `R${i}`;
+                const labelColor = isIP ? 'text-slate-500' : isFinal ? 'text-emerald-400' : 'text-cyan-400';
+                return (
+                  <div key={i} className={`grid grid-cols-12 gap-1 px-3 py-1.5 text-xs font-mono border-b border-cyan-900/20 ${bg}`}>
+                    <div className={`col-span-1 font-bold ${labelColor}`}>{roundLabel}</div>
+                    <div className="col-span-4 text-cyan-200 truncate" title={dsrHex}>{dsrHex}</div>
+                    <div className="col-span-4 text-blue-200 truncate" title={origHex}>{origHex}</div>
+                    <div className="col-span-1 text-center">
+                      {dr.shiftVal !== null ? <span className="text-cyan-400 font-bold">{dr.shiftVal}</span> : <span className="text-slate-700">—</span>}
+                    </div>
+                    <div className="col-span-2 text-right">
+                      {diff > 0
+                        ? <span className={`font-bold ${diff >= 24 ? 'text-emerald-400' : diff >= 12 ? 'text-yellow-400' : 'text-slate-400'}`}>{diffPct}%</span>
+                        : <span className="text-slate-700">—</span>}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
         </div>
         <div className="px-3 py-2 text-[11px] text-slate-500 bg-black/30 border-t border-cyan-900/30 flex gap-4 flex-wrap">
           <span><span className="text-cyan-300">Amber</span> = DSR state · <span className="text-blue-300">Blue</span> = Orig DES state</span>
@@ -637,14 +645,20 @@ export default function App() {
       </div>
 
       {/* ── Top nav bar ── */}
-      <div className="dsr-topbar px-6 py-2.5 flex items-center justify-between text-sm text-white/90 font-medium tracking-wide">
-        <span className="opacity-80">Group 2</span>
-        <span className="font-semibold tracking-widest uppercase text-xs text-cyan-200">IAS Case Study</span>
-        <span className="opacity-80">DES Modification</span>
+      <div className="dsr-topbar px-3 sm:px-6 py-2 sm:py-2.5 flex items-center justify-between text-white/90 font-medium tracking-wide">
+        <span className="opacity-80 text-xs sm:text-sm">Group 2</span>
+        <span className="font-semibold tracking-widest uppercase text-[10px] sm:text-xs text-cyan-200">
+          <span className="hidden sm:inline">IAS Case Study</span>
+          <span className="sm:hidden">IAS</span>
+        </span>
+        <span className="opacity-80 text-xs sm:text-sm">
+          <span className="hidden sm:inline">DES Modification</span>
+          <span className="sm:hidden">DSR</span>
+        </span>
       </div>
 
       {/* ── Hero section — pure SVG/CSS, no image ── */}
-      <div className="dsr-hero mx-4 md:mx-8 mt-4 rounded-2xl overflow-hidden" style={{background:'linear-gradient(135deg,#030f28 0%,#040e22 50%,#020c1e 100%)'}}>
+      <div className="dsr-hero mx-2 sm:mx-4 md:mx-8 mt-4 rounded-2xl overflow-hidden" style={{background:'linear-gradient(135deg,#030f28 0%,#040e22 50%,#020c1e 100%)'}}>
 
         {/* Network nodes ambient layer */}
         <svg className="absolute inset-0 w-full h-full pointer-events-none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
@@ -687,15 +701,15 @@ export default function App() {
           </div>
         </div>
 
-        {/* DSR checkerboard logo — top right */}
-        <div className="absolute top-5 right-6 grid grid-cols-4 gap-[3px] pointer-events-none" aria-hidden="true" style={{opacity:0.7}}>
+        {/* DSR checkerboard logo — top right (hidden on xs) */}
+        <div className="absolute top-5 right-6 hidden sm:grid grid-cols-4 gap-[3px] pointer-events-none" aria-hidden="true" style={{opacity:0.7}}>
           {[1,0,1,0, 0,1,0,1, 1,0,1,0, 0,1,0,1].map((on,i)=>(
             <div key={i} className={`w-4 h-4 md:w-5 md:h-5 rounded-[3px] transition-none ${on?'bg-cyan-400':'bg-cyan-900/20'}`}/>
           ))}
         </div>
 
-        {/* 3D Glassmorphic Padlock — right center */}
-        <div className="absolute pointer-events-none hero-lock" style={{right:'12%', top:'50%', transform:'translateY(-50%)', opacity:0.38}} aria-hidden="true">
+        {/* 3D Glassmorphic Padlock — right center (hidden on mobile) */}
+        <div className="absolute hidden md:block pointer-events-none hero-lock" style={{right:'12%', top:'50%', transform:'translateY(-50%)', opacity:0.38}} aria-hidden="true">
           <svg width="150" height="188" viewBox="0 0 150 188" fill="none" xmlns="http://www.w3.org/2000/svg">
             <defs>
               <linearGradient id="shackleGrad" x1="40" y1="30" x2="110" y2="85" gradientUnits="userSpaceOnUse">
@@ -742,11 +756,11 @@ export default function App() {
         </div>
 
         {/* Content */}
-        <div className="px-8 md:px-14 py-10 md:py-14 flex flex-col gap-3 relative" style={{zIndex:2}}>
+        <div className="px-5 sm:px-8 md:px-14 py-8 sm:py-10 md:py-14 flex flex-col gap-3 relative" style={{zIndex:2}}>
           <div className="inline-flex items-center gap-2 px-3 py-1 bg-cyan-500/10 border border-cyan-500/30 text-cyan-300 rounded-full text-xs font-semibold self-start backdrop-blur-sm">
             <Shield size={13} /> Information Assurance &amp; Security — TSU Case Study
           </div>
-          <h1 className="text-5xl md:text-7xl font-black tracking-tight leading-none gradient-text-dsr drop-shadow-2xl">
+          <h1 className="text-4xl sm:text-5xl md:text-7xl font-black tracking-tight leading-none gradient-text-dsr drop-shadow-2xl">
             DYNAMIC<br />SHIFT<br />ROUTING
           </h1>
           <p className="text-base md:text-lg font-semibold text-white/70 tracking-wide max-w-xl">
@@ -912,12 +926,12 @@ export default function App() {
 
             {/* Quick visual link to round trace */}
             {encTrace && (
-              <div className="bg-gradient-to-br from-slate-900 to-amber-950/10 border border-cyan-500/20 rounded-xl p-5 flex items-center justify-between gap-4">
+              <div className="bg-gradient-to-br from-slate-900 to-amber-950/10 border border-cyan-500/20 rounded-xl p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                 <div>
                   <div className="text-cyan-400 font-semibold flex items-center gap-2"><Eye size={16} /> See every round</div>
                   <p className="text-sm text-slate-400 mt-1">Inspect L, R, the dynamic shift value, and subkey at each of the 16 rounds — for both encryption and decryption.</p>
                 </div>
-                <button onClick={() => setTab('rounds')} className="bg-cyan-500 hover:bg-amber-400 text-slate-950 font-semibold px-4 py-2 rounded-lg flex items-center gap-2 whitespace-nowrap">
+                <button onClick={() => setTab('rounds')} className="bg-cyan-500 hover:bg-amber-400 text-slate-950 font-semibold px-4 py-2 rounded-lg flex items-center gap-2 whitespace-nowrap shrink-0 self-start sm:self-auto">
                   Open Trace <ArrowRight size={16} />
                 </button>
               </div>
@@ -953,8 +967,8 @@ export default function App() {
 
                 {/* ── ENCRYPTION comparison ─────────────────────────── */}
                 <div className="glass-card-strong rounded-2xl p-5 space-y-4">
-                  <div className="flex items-center justify-between">
-                    <h3 className="text-cyan-400 font-semibold flex items-center gap-2"><Lock size={16} /> Encryption Trace — DSR vs Original DES (Plaintext → Ciphertext)</h3>
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
+                    <h3 className="text-cyan-400 font-semibold flex items-center gap-2 text-sm sm:text-base"><Lock size={16} /> Encryption Trace — DSR vs Original DES (Plaintext → Ciphertext)</h3>
                   </div>
                   <p className="text-xs text-slate-400">The table below shows the internal state (L+R as 16-hex) after every round for both algorithms side-by-side. The <strong className="text-cyan-300">Bit Δ</strong> column counts how many of the 64 bits differ between them — DSR's dynamic shift makes the states diverge earlier.</p>
                   {renderComparisonTable(encTrace, encTraceOrig, false)}
@@ -980,10 +994,10 @@ export default function App() {
 
                 {/* ── DECRYPTION comparison ─────────────────────────── */}
                 <div className="glass-card-strong rounded-2xl p-5 space-y-4">
-                  <div className="flex items-center justify-between">
-                    <h3 className="text-emerald-400 font-semibold flex items-center gap-2"><Unlock size={16} /> Decryption Trace — DSR vs Original DES (Ciphertext → Plaintext)</h3>
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
+                    <h3 className="text-emerald-400 font-semibold flex items-center gap-2 text-sm sm:text-base"><Unlock size={16} /> Decryption Trace — DSR vs Original DES (Ciphertext → Plaintext)</h3>
                     {!decTrace && (
-                      <button onClick={handleDecrypt} className="text-xs bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1.5 rounded font-semibold flex items-center gap-1">
+                      <button onClick={handleDecrypt} className="text-xs bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1.5 rounded font-semibold flex items-center gap-1 shrink-0">
                         <Play size={12} /> Run Decryption
                       </button>
                     )}
@@ -1349,10 +1363,10 @@ export default function App() {
             </div>
 
             <div className="glass-card-strong rounded-2xl p-6">
-              <div className="flex items-center justify-between mb-6">
+              <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
                 <h4 className="font-bold text-slate-200 flex items-center gap-2"><Database size={18} className="text-cyan-400" /> Live Benchmark</h4>
                 <button onClick={runBenchmark} disabled={perfRunning}
-                  className="bg-cyan-500 hover:bg-amber-400 text-slate-950 font-semibold px-4 py-2 rounded-lg flex items-center gap-2 disabled:opacity-50">
+                  className="bg-cyan-500 hover:bg-amber-400 text-slate-950 font-semibold px-4 py-2 rounded-lg flex items-center gap-2 disabled:opacity-50 shrink-0">
                   <Play size={14} /> {perfRunning ? 'Running…' : (perfResults ? 'Re-run' : 'Run Benchmark')}
                 </button>
               </div>
@@ -1366,15 +1380,15 @@ export default function App() {
                       <div key={i}>
                         <div className="text-xs font-bold tracking-wider text-slate-500 mb-3 uppercase">Stream Size: {r.size} ({r.blocks} blocks)</div>
                         <div className="space-y-3">
-                          <div className="flex items-center gap-4">
-                            <div className="w-28 text-sm text-blue-400 text-right font-medium">Original DES</div>
+                          <div className="flex items-center gap-2 sm:gap-4">
+                            <div className="w-20 sm:w-28 text-xs sm:text-sm text-blue-400 text-right font-medium shrink-0">Original DES</div>
                             <div className="flex-1 h-3 bg-black/60 rounded-full overflow-hidden"><div className="bg-blue-600 h-full" style={{ width: `${(r.origMs / maxTime) * 100}%` }}></div></div>
-                            <div className="w-24 text-sm text-blue-300 font-mono text-right">{r.origMs.toFixed(2)}ms</div>
+                            <div className="w-16 sm:w-24 text-xs sm:text-sm text-blue-300 font-mono text-right shrink-0">{r.origMs.toFixed(2)}ms</div>
                           </div>
-                          <div className="flex items-center gap-4">
-                            <div className="w-28 text-sm text-cyan-400 text-right font-medium">Modified DES</div>
+                          <div className="flex items-center gap-2 sm:gap-4">
+                            <div className="w-20 sm:w-28 text-xs sm:text-sm text-cyan-400 text-right font-medium shrink-0">Modified DES</div>
                             <div className="flex-1 h-3 bg-black/60 rounded-full overflow-hidden"><div className="bg-cyan-500 h-full shadow-[0_0_10px_rgba(245,158,11,0.4)]" style={{ width: `${(r.dsrMs / maxTime) * 100}%` }}></div></div>
-                            <div className="w-24 text-sm text-cyan-300 font-mono text-right">{r.dsrMs.toFixed(2)}ms</div>
+                            <div className="w-16 sm:w-24 text-xs sm:text-sm text-cyan-300 font-mono text-right shrink-0">{r.dsrMs.toFixed(2)}ms</div>
                           </div>
                         </div>
                       </div>
@@ -1461,9 +1475,9 @@ export default function App() {
             </div>
 
             <div className="glass-card-strong rounded-2xl p-6">
-              <div className="flex items-center justify-between mb-6">
+              <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
                 <h4 className="font-bold text-slate-200 flex items-center gap-2"><Database size={18} className="text-cyan-400" /> Sample Battery</h4>
-                <button onClick={runEntropyTable} className="bg-cyan-500 hover:bg-amber-400 text-slate-950 font-semibold px-4 py-2 rounded-lg flex items-center gap-2">
+                <button onClick={runEntropyTable} className="bg-cyan-500 hover:bg-amber-400 text-slate-950 font-semibold px-4 py-2 rounded-lg flex items-center gap-2 shrink-0">
                   <Play size={14} /> {entropyTable ? 'Re-run' : 'Compute Entropy'}
                 </button>
               </div>
