@@ -179,8 +179,11 @@ export default function App() {
   const [cipherOut, setCipherOut] = useState("");
   const [decryptedHexOut, setDecryptedHexOut] = useState("");
   const [decryptedTextOut, setDecryptedTextOut] = useState("");
-  const [encTrace, setEncTrace] = useState(null); // {cipher, rounds, subkeysHex}
+  const [encTrace, setEncTrace] = useState(null); // DSR trace
   const [decTrace, setDecTrace] = useState(null);
+  const [encTraceOrig, setEncTraceOrig] = useState(null); // Original DES trace
+  const [decTraceOrig, setDecTraceOrig] = useState(null);
+  const [origCipherOut, setOrigCipherOut] = useState("");
   const [showKeySchedule, setShowKeySchedule] = useState(false);
   const [showEncTrace, setShowEncTrace] = useState(false);
   const [showDecTrace, setShowDecTrace] = useState(false);
@@ -258,13 +261,17 @@ export default function App() {
     setKeyHex(cleanKey);
     try {
       const trace = desCryptTrace(cleanPlain, cleanKey, false, true);
+      const traceOrig = desCryptTrace(cleanPlain, cleanKey, false, false);
       setEncTrace(trace);
+      setEncTraceOrig(traceOrig);
       setLockedPlaintextHex(cleanPlain);
       setLockedKey(cleanKey);
       setCipherOut(trace.cipher);
+      setOrigCipherOut(traceOrig.cipher);
       setDecryptedHexOut("");
       setDecryptedTextOut("");
       setDecTrace(null);
+      setDecTraceOrig(null);
       setShowEncTrace(false);
       setShowDecTrace(false);
 
@@ -293,7 +300,9 @@ export default function App() {
     if (!cipherOut) return;
     try {
       const trace = desCryptTrace(cipherOut, lockedKey, true, true);
+      const traceOrig = desCryptTrace(origCipherOut || cipherOut, lockedKey, true, false);
       setDecTrace(trace);
+      setDecTraceOrig(traceOrig);
       setDecryptedHexOut(trace.cipher);
       setDecryptedTextOut(hexToText(trace.cipher));
     } catch (e) { alert("Decryption error."); }
@@ -436,20 +445,29 @@ export default function App() {
     );
   };
 
-  // Round trace renderer
-  const renderRoundTrace = (trace, isDecrypt) => {
+  // Round trace renderer — single algorithm, shows inputHex row before IP
+  const renderRoundTrace = (trace, isDecrypt, inputHex = null, label = null) => {
     if (!trace) return null;
     const accentClass = isDecrypt ? 'text-emerald-400' : 'text-blue-400';
+    const inputLabel = isDecrypt ? 'Ciphertext (input)' : 'Plaintext (input)';
     return (
       <div className="bg-slate-950 rounded-lg border border-slate-800 overflow-hidden">
-        <div className={`grid grid-cols-12 gap-2 px-3 py-2 text-[10px] uppercase font-bold tracking-wider text-slate-500 border-b border-slate-800 bg-slate-900`}>
-          <div className="col-span-1">Round</div>
+        <div className="grid grid-cols-12 gap-2 px-3 py-2 text-[10px] uppercase font-bold tracking-wider text-slate-500 border-b border-slate-800 bg-slate-900">
+          <div className="col-span-1">Stage</div>
           <div className="col-span-3">L (32-bit hex)</div>
           <div className="col-span-3">R (32-bit hex)</div>
           <div className="col-span-1">Shift</div>
           <div className="col-span-4">Subkey (48-bit)</div>
         </div>
         <div className="max-h-96 overflow-y-auto">
+          {/* Input row (before IP) */}
+          {inputHex && (
+            <div className="grid grid-cols-12 gap-2 px-3 py-1.5 text-xs font-mono border-b border-slate-900 bg-slate-900/60">
+              <div className="col-span-1 font-bold text-slate-400 text-[10px]">{inputLabel.split(' ')[0]}</div>
+              <div className="col-span-6 text-yellow-300 font-bold col-start-2">{inputHex}</div>
+              <div className="col-span-5 text-slate-600 text-[10px] italic flex items-center">← raw input, before Initial Permutation</div>
+            </div>
+          )}
           {trace.rounds.map((r, i) => (
             <div key={i} className={`grid grid-cols-12 gap-2 px-3 py-1.5 text-xs font-mono border-b border-slate-900 ${i === 0 ? 'bg-slate-900/40' : i === 16 ? 'bg-emerald-900/10' : ''}`}>
               <div className={`col-span-1 font-bold ${i === 0 ? 'text-slate-500' : i === 16 ? 'text-emerald-400' : accentClass}`}>
@@ -465,7 +483,62 @@ export default function App() {
           ))}
         </div>
         <div className="px-3 py-2 text-[11px] text-slate-500 bg-slate-900 border-t border-slate-800">
-          <span className="text-amber-400 font-semibold">Shift</span> = decimal value of the first 5 bits of S-box output (DSR step). 0 means no DSR applied.
+          <span className="text-yellow-400 font-semibold">Yellow row</span> = raw hex before IP scrambles it. <span className="text-amber-400 font-semibold">Shift</span> = decimal of first 5 S-box bits (DSR step, 0–31).
+        </div>
+      </div>
+    );
+  };
+
+  // Comparison table: DSR vs Orig DES per round
+  const renderComparisonTable = (dsrTrace, origTrace, isDecrypt) => {
+    if (!dsrTrace || !origTrace) return null;
+    const dsrRounds = dsrTrace.rounds;
+    const origRounds = origTrace.rounds;
+    const rows = dsrRounds.map((dr, i) => {
+      const or = origRounds[i];
+      const dsrHex = bitsToHex(dr.L) + bitsToHex(dr.R);
+      const origHex = bitsToHex(or.L) + bitsToHex(or.R);
+      const dsrBits = hexToBits(dsrHex), origBits = hexToBits(origHex);
+      let diff = 0;
+      for (let b = 0; b < 64; b++) if (dsrBits[b] !== origBits[b]) diff++;
+      const diffPct = ((diff / 64) * 100).toFixed(1);
+      const isIP = i === 0, isFinal = i === 16;
+      return { i, dr, or, dsrHex, origHex, diff, diffPct, isIP, isFinal };
+    });
+    return (
+      <div className="bg-slate-950 rounded-lg border border-slate-800 overflow-hidden">
+        <div className="grid grid-cols-12 gap-1 px-3 py-2 text-[10px] uppercase font-bold tracking-wider text-slate-500 border-b border-slate-800 bg-slate-900">
+          <div className="col-span-1">Round</div>
+          <div className="col-span-4 text-amber-400">Modified DES (DSR)</div>
+          <div className="col-span-4 text-blue-400">Original DES</div>
+          <div className="col-span-1 text-amber-400 text-center">Shift</div>
+          <div className="col-span-2 text-slate-400 text-right">Bit Δ</div>
+        </div>
+        <div className="max-h-[480px] overflow-y-auto">
+          {rows.map(({ i, dr, or, dsrHex, origHex, diff, diffPct, isIP, isFinal }) => {
+            const bg = isIP ? 'bg-slate-900/50' : isFinal ? 'bg-emerald-900/10' : diff > 0 ? 'bg-amber-950/10' : '';
+            const roundLabel = isIP ? 'IP' : isFinal ? 'Final' : `R${i}`;
+            const labelColor = isIP ? 'text-slate-500' : isFinal ? 'text-emerald-400' : 'text-amber-400';
+            return (
+              <div key={i} className={`grid grid-cols-12 gap-1 px-3 py-1.5 text-xs font-mono border-b border-slate-900 ${bg}`}>
+                <div className={`col-span-1 font-bold ${labelColor}`}>{roundLabel}</div>
+                <div className="col-span-4 text-amber-200 truncate" title={dsrHex}>{dsrHex}</div>
+                <div className="col-span-4 text-blue-200 truncate" title={origHex}>{origHex}</div>
+                <div className="col-span-1 text-center">
+                  {dr.shiftVal !== null ? <span className="text-amber-400 font-bold">{dr.shiftVal}</span> : <span className="text-slate-700">—</span>}
+                </div>
+                <div className="col-span-2 text-right">
+                  {diff > 0
+                    ? <span className={`font-bold ${diff >= 24 ? 'text-emerald-400' : diff >= 12 ? 'text-yellow-400' : 'text-slate-400'}`}>{diffPct}%</span>
+                    : <span className="text-slate-700">—</span>}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+        <div className="px-3 py-2 text-[11px] text-slate-500 bg-slate-900 border-t border-slate-800 flex gap-4 flex-wrap">
+          <span><span className="text-amber-300">Amber</span> = DSR state · <span className="text-blue-300">Blue</span> = Orig DES state</span>
+          <span><span className="text-emerald-400">Green Δ</span> ≥ 37.5% · <span className="text-yellow-400">Yellow Δ</span> ≥ 18.75% · states diverge as DSR's shift routes bits differently</span>
         </div>
       </div>
     );
@@ -666,49 +739,111 @@ export default function App() {
               </div>
             ) : (
               <>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="bg-slate-900 border border-slate-800 rounded-xl p-4">
-                    <div className="text-xs text-slate-500 uppercase tracking-wider">Plaintext</div>
-                    <div className="font-mono text-emerald-400 text-lg break-all">{lockedPlaintextHex}</div>
+                {/* Plaintext → Cipher summary strip */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                  <div className="bg-slate-900 border border-emerald-500/30 rounded-xl p-4">
+                    <div className="text-[10px] text-slate-500 uppercase tracking-wider mb-1">Plaintext (input)</div>
+                    <div className="font-mono text-emerald-400 text-base break-all">{lockedPlaintextHex}</div>
                   </div>
-                  <div className="bg-slate-900 border border-slate-800 rounded-xl p-4">
-                    <div className="text-xs text-slate-500 uppercase tracking-wider">Ciphertext</div>
-                    <div className="font-mono text-red-400 text-lg break-all">{cipherOut}</div>
+                  <div className="bg-slate-900 border border-amber-500/30 rounded-xl p-4">
+                    <div className="text-[10px] text-slate-500 uppercase tracking-wider mb-1">DSR Ciphertext</div>
+                    <div className="font-mono text-amber-400 text-base break-all">{cipherOut}</div>
+                  </div>
+                  <div className="bg-slate-900 border border-blue-500/30 rounded-xl p-4">
+                    <div className="text-[10px] text-slate-500 uppercase tracking-wider mb-1">Orig DES Ciphertext</div>
+                    <div className="font-mono text-blue-400 text-base break-all">{origCipherOut}</div>
                   </div>
                 </div>
 
-                <div className="bg-slate-900 border border-blue-500/30 rounded-xl p-5 shadow-lg">
-                  <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-blue-400 font-semibold flex items-center gap-2"><Lock size={16} /> Encryption Trace (Plaintext → Ciphertext)</h3>
-                    <button onClick={() => setShowEncTrace(!showEncTrace)} className="text-xs text-slate-400 hover:text-white flex items-center gap-1">
-                      {showEncTrace ? <ChevronDown size={14} /> : <ChevronRight size={14} />} {showEncTrace ? 'Collapse' : 'Expand'}
-                    </button>
+                {/* ── ENCRYPTION comparison ─────────────────────────── */}
+                <div className="bg-slate-900 border border-amber-500/20 rounded-xl p-5 shadow-lg space-y-4">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-amber-400 font-semibold flex items-center gap-2"><Lock size={16} /> Encryption Trace — DSR vs Original DES (Plaintext → Ciphertext)</h3>
                   </div>
-                  {showEncTrace && renderRoundTrace(encTrace, false)}
-                  {!showEncTrace && <p className="text-sm text-slate-500">Click expand to see all 16 rounds.</p>}
-                </div>
+                  <p className="text-xs text-slate-400">The table below shows the internal state (L+R as 16-hex) after every round for both algorithms side-by-side. The <strong className="text-amber-300">Bit Δ</strong> column counts how many of the 64 bits differ between them — DSR's dynamic shift makes the states diverge earlier.</p>
+                  {renderComparisonTable(encTrace, encTraceOrig, false)}
 
-                <div className="bg-slate-900 border border-emerald-500/30 rounded-xl p-5 shadow-lg">
-                  <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-emerald-400 font-semibold flex items-center gap-2"><Unlock size={16} /> Decryption Trace (Ciphertext → Plaintext)</h3>
-                    <div className="flex items-center gap-3">
-                      {!decTrace && <button onClick={handleDecrypt} className="text-xs bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1.5 rounded font-semibold flex items-center gap-1">
-                        <Play size={12} /> Run Decryption
-                      </button>}
-                      {decTrace && (
-                        <button onClick={() => setShowDecTrace(!showDecTrace)} className="text-xs text-slate-400 hover:text-white flex items-center gap-1">
-                          {showDecTrace ? <ChevronDown size={14} /> : <ChevronRight size={14} />} {showDecTrace ? 'Collapse' : 'Expand'}
-                        </button>
-                      )}
+                  {/* Individual detailed traces */}
+                  <div className="grid md:grid-cols-2 gap-4 pt-2">
+                    <div className="space-y-2">
+                      <button onClick={() => setShowEncTrace(!showEncTrace)} className="w-full flex items-center justify-between text-xs bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/20 rounded-lg px-3 py-2 text-amber-400 font-semibold">
+                        <span className="flex items-center gap-2"><Eye size={13} /> DSR Round Detail (L/R/Shift/Subkey)</span>
+                        {showEncTrace ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
+                      </button>
+                      {showEncTrace && renderRoundTrace(encTrace, false, lockedPlaintextHex)}
+                    </div>
+                    <div className="space-y-2">
+                      <button onClick={() => setShowDecTrace(!showDecTrace)} className="w-full flex items-center justify-between text-xs bg-blue-500/10 hover:bg-blue-500/20 border border-blue-500/20 rounded-lg px-3 py-2 text-blue-400 font-semibold">
+                        <span className="flex items-center gap-2"><Eye size={13} /> Original DES Round Detail</span>
+                        {showDecTrace ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
+                      </button>
+                      {showDecTrace && renderRoundTrace(encTraceOrig, false, lockedPlaintextHex)}
                     </div>
                   </div>
-                  {decTrace ? (showDecTrace ? renderRoundTrace(decTrace, true) : <p className="text-sm text-slate-500">Click expand to see all 16 rounds (subkeys applied in reverse).</p>)
-                    : <p className="text-sm text-slate-500">Decryption uses the SAME 16 subkeys, applied in reverse order, to recover the original plaintext.</p>}
+                </div>
+
+                {/* ── DECRYPTION comparison ─────────────────────────── */}
+                <div className="bg-slate-900 border border-emerald-500/20 rounded-xl p-5 shadow-lg space-y-4">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-emerald-400 font-semibold flex items-center gap-2"><Unlock size={16} /> Decryption Trace — DSR vs Original DES (Ciphertext → Plaintext)</h3>
+                    {!decTrace && (
+                      <button onClick={handleDecrypt} className="text-xs bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1.5 rounded font-semibold flex items-center gap-1">
+                        <Play size={12} /> Run Decryption
+                      </button>
+                    )}
+                  </div>
+
+                  {!decTrace ? (
+                    <p className="text-sm text-slate-500">Decryption applies the same 16 subkeys in <strong className="text-emerald-400">reverse order</strong>. Click "Run Decryption" above to compute both traces — proving perfect reversibility.</p>
+                  ) : (
+                    <>
+                      {/* Proof of reversibility banner */}
+                      <div className="bg-emerald-900/20 border border-emerald-500/30 rounded-lg px-4 py-3 flex items-center gap-3 text-sm">
+                        <CheckCircle2 size={20} className="text-emerald-400 shrink-0" />
+                        <span className="text-slate-200">
+                          DSR decrypted back to <strong className="text-emerald-400 font-mono">{decTrace.cipher}</strong>
+                          {decTrace.cipher === lockedPlaintextHex ? <span className="text-emerald-400 font-semibold"> ✓ matches original plaintext exactly</span> : <span className="text-red-400"> ✗ mismatch</span>}.
+                          &nbsp;Original DES → <strong className="text-blue-400 font-mono">{decTraceOrig?.cipher}</strong>
+                          {decTraceOrig?.cipher === lockedPlaintextHex ? <span className="text-emerald-400 font-semibold"> ✓</span> : ''}.
+                        </span>
+                      </div>
+                      <p className="text-xs text-slate-400">The ciphertext fed into decryption appears in the <span className="text-yellow-300 font-semibold">yellow row</span> — before the Initial Permutation scrambles it. After 16 rounds in reverse, both algorithms perfectly recover the original plaintext.</p>
+                      {renderComparisonTable(decTrace, decTraceOrig, true)}
+
+                      {/* Individual detailed decrypt traces */}
+                      <div className="grid md:grid-cols-2 gap-4 pt-2">
+                        <div className="space-y-2">
+                          <details className="group">
+                            <summary className="w-full flex items-center justify-between text-xs bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/20 rounded-lg px-3 py-2 text-amber-400 font-semibold cursor-pointer list-none">
+                              <span className="flex items-center gap-2"><Eye size={13} /> DSR Decrypt Detail</span>
+                              <ChevronRight size={14} className="group-open:rotate-90 transition-transform" />
+                            </summary>
+                            <div className="mt-2">{renderRoundTrace(decTrace, true, cipherOut)}</div>
+                          </details>
+                        </div>
+                        <div className="space-y-2">
+                          <details className="group">
+                            <summary className="w-full flex items-center justify-between text-xs bg-blue-500/10 hover:bg-blue-500/20 border border-blue-500/20 rounded-lg px-3 py-2 text-blue-400 font-semibold cursor-pointer list-none">
+                              <span className="flex items-center gap-2"><Eye size={13} /> Original DES Decrypt Detail</span>
+                              <ChevronRight size={14} className="group-open:rotate-90 transition-transform" />
+                            </summary>
+                            <div className="mt-2">{renderRoundTrace(decTraceOrig, true, origCipherOut)}</div>
+                          </details>
+                        </div>
+                      </div>
+                    </>
+                  )}
                 </div>
 
                 <div className="bg-slate-900 border border-slate-800 rounded-xl p-5 text-sm text-slate-400 leading-relaxed">
-                  <h4 className="text-amber-400 font-semibold mb-2 flex items-center gap-2"><Info size={16} /> Reading the trace</h4>
-                  <p><strong className="text-slate-200">L</strong> and <strong className="text-slate-200">R</strong> are the 32-bit halves after each round. The <strong className="text-amber-400">Shift</strong> column shows the data-dependent left circular shift applied by DSR (the decimal value of the first 5 bits of the S-box output, range 0–31). The <strong className="text-blue-400">Subkey</strong> is the 48-bit round key derived from the master key. Notice the shift value differs from round to round — that is the source of DSR's improved diffusion.</p>
+                  <h4 className="text-amber-400 font-semibold mb-2 flex items-center gap-2"><Info size={16} /> How to read this page</h4>
+                  <ul className="space-y-1.5 list-disc list-inside text-sm text-slate-400 leading-relaxed">
+                    <li><strong className="text-yellow-300">Yellow row</strong> — the raw hex input fed to the cipher, shown <em>before</em> the Initial Permutation (IP) rearranges the bits.</li>
+                    <li><strong className="text-slate-200">IP row</strong> — state after IP; this is where DES actually starts operating.</li>
+                    <li><strong className="text-slate-200">R1–R16</strong> — Feistel rounds. Each produces a new (L, R) pair. DSR's <strong className="text-amber-400">Shift</strong> column shows the data-dependent rotation (0–31) applied that round.</li>
+                    <li><strong className="text-emerald-400">Final row</strong> — after IP-inverse, this is the output ciphertext (encryption) or recovered plaintext (decryption).</li>
+                    <li><strong className="text-amber-300">Bit Δ</strong> — how many of the 64 bits differ between DSR and Orig DES at that round. Divergence grows quickly because DSR routes bits differently each round.</li>
+                  </ul>
                 </div>
               </>
             )}
