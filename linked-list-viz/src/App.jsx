@@ -465,17 +465,19 @@ export default function App() {
   const renderRoundTrace = (trace, isDecrypt, inputHex = null, label = null) => {
     if (!trace) return null;
     const accentClass = isDecrypt ? 'text-emerald-400' : 'text-blue-400';
-    const inputLabel = isDecrypt ? 'Ciphertext (input)' : 'Plaintext (input)';
+    const stateColor = isDecrypt ? 'text-emerald-300' : 'text-sky-300';
     return (
       <div className="bg-slate-950 rounded-lg border border-slate-800 overflow-hidden">
-        <div className="grid grid-cols-12 gap-2 px-3 py-2 text-[10px] uppercase font-bold tracking-wider text-slate-500 border-b border-slate-800 bg-slate-900">
+        {/* Header: Stage(1) L(2) R(2) State(4) Shift(1) Subkey(2) = 12 */}
+        <div className="grid grid-cols-12 gap-1 px-3 py-2 text-[10px] uppercase font-bold tracking-wider text-slate-500 border-b border-slate-800 bg-slate-900">
           <div className="col-span-1">Stage</div>
-          <div className="col-span-3">L (32-bit hex)</div>
-          <div className="col-span-3">R (32-bit hex)</div>
+          <div className="col-span-2">L (32-bit)</div>
+          <div className="col-span-2">R (32-bit)</div>
+          <div className="col-span-4 text-sky-400">{isDecrypt ? 'Plaintext (L‖R)' : 'Plaintext (L‖R)'}</div>
           <div className="col-span-1">Shift</div>
-          <div className="col-span-4">Subkey (48-bit)</div>
+          <div className="col-span-2">Subkey</div>
         </div>
-        <div className="max-h-96 overflow-y-auto">
+        <div className="max-h-[420px] overflow-y-auto">
           {/* Input row (before IP) — full-width flex to avoid grid overflow */}
           {inputHex && (
             <div className="flex items-center gap-3 px-3 py-2 text-xs font-mono border-b border-slate-900 bg-slate-900/60 flex-wrap">
@@ -486,22 +488,31 @@ export default function App() {
               <span className="text-slate-600 text-[10px] italic">← raw input, before Initial Permutation</span>
             </div>
           )}
-          {trace.rounds.map((r, i) => (
-            <div key={i} className={`grid grid-cols-12 gap-2 px-3 py-1.5 text-xs font-mono border-b border-slate-900 ${i === 0 ? 'bg-slate-900/40' : i === 16 ? 'bg-emerald-900/10' : ''}`}>
-              <div className={`col-span-1 font-bold ${i === 0 ? 'text-slate-500' : i === 16 ? 'text-emerald-400' : accentClass}`}>
-                {i === 0 ? 'IP' : i === 16 ? 'Final' : `R${i}`}
+          {trace.rounds.map((r, i) => {
+            const stateHex = bitsToHex(r.L) + bitsToHex(r.R);
+            const isIP = i === 0, isFinal = i === 16;
+            return (
+              <div key={i} className={`grid grid-cols-12 gap-1 px-3 py-1.5 text-xs font-mono border-b border-slate-900 ${isIP ? 'bg-slate-900/40' : isFinal ? 'bg-emerald-900/10' : ''}`}>
+                <div className={`col-span-1 font-bold ${isIP ? 'text-slate-500' : isFinal ? 'text-emerald-400' : accentClass}`}>
+                  {isIP ? 'IP' : isFinal ? 'Final' : `R${i}`}
+                </div>
+                <div className="col-span-2 text-slate-300">{bitsToHex(r.L)}</div>
+                <div className="col-span-2 text-slate-300">{bitsToHex(r.R)}</div>
+                <div className={`col-span-4 font-semibold ${isFinal ? 'text-emerald-300' : stateColor}`}>
+                  {stateHex}
+                </div>
+                <div className="col-span-1">
+                  {r.shiftVal !== null ? <span className="text-amber-400 font-bold">{r.shiftVal}</span> : <span className="text-slate-700">—</span>}
+                </div>
+                <div className="col-span-2 text-slate-500 truncate text-[10px]">{r.subkey ? r.subkey.slice(0, 8) + '…' : '—'}</div>
               </div>
-              <div className="col-span-3 text-slate-300">{bitsToHex(r.L)}</div>
-              <div className="col-span-3 text-slate-300">{bitsToHex(r.R)}</div>
-              <div className="col-span-1">
-                {r.shiftVal !== null ? <span className="text-amber-400 font-bold">{r.shiftVal}</span> : <span className="text-slate-700">—</span>}
-              </div>
-              <div className="col-span-4 text-slate-500 truncate">{r.subkey || '—'}</div>
-            </div>
-          ))}
+            );
+          })}
         </div>
-        <div className="px-3 py-2 text-[11px] text-slate-500 bg-slate-900 border-t border-slate-800">
-          <span className="text-yellow-400 font-semibold">Yellow row</span> = raw hex before IP scrambles it. <span className="text-amber-400 font-semibold">Shift</span> = decimal of first 5 S-box bits (DSR step, 0–31).
+        <div className="px-3 py-2 text-[11px] text-slate-500 bg-slate-900 border-t border-slate-800 flex flex-wrap gap-3">
+          <span><span className="text-yellow-400 font-semibold">Yellow row</span> = raw hex before IP</span>
+          <span><span className={`font-semibold ${stateColor}`}>Plaintext (L‖R)</span> = full 64-bit block state at this round</span>
+          <span><span className="text-amber-400 font-semibold">Shift</span> = DSR circular shift amount (0–31)</span>
         </div>
       </div>
     );
