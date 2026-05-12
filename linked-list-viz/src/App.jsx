@@ -576,6 +576,66 @@ export default function App() {
   return (
     <div className="min-h-screen text-slate-200 font-sans selection:bg-cyan-500/30" style={{background:'#030712'}}>
 
+      {/* ── Page-wide ambient network background (fixed, behind everything) ── */}
+      <div className="page-network" aria-hidden="true">
+        <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" style={{opacity:1}}>
+          <defs>
+            <radialGradient id="pgNodeA" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stopColor="#00d4ff" stopOpacity="0.7"/>
+              <stop offset="100%" stopColor="#00d4ff" stopOpacity="0"/>
+            </radialGradient>
+            <radialGradient id="pgNodeB" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stopColor="#3b82f6" stopOpacity="0.6"/>
+              <stop offset="100%" stopColor="#3b82f6" stopOpacity="0"/>
+            </radialGradient>
+          </defs>
+          {/* Left cluster */}
+          <line x1="4%"  y1="18%" x2="11%" y2="35%" stroke="#00b4d8" strokeWidth="0.5" strokeOpacity="0.18"/>
+          <line x1="11%" y1="35%" x2="6%"  y2="55%" stroke="#3b82f6" strokeWidth="0.5" strokeOpacity="0.15"/>
+          <line x1="11%" y1="35%" x2="18%" y2="48%" stroke="#00b4d8" strokeWidth="0.5" strokeOpacity="0.15"/>
+          <line x1="18%" y1="48%" x2="12%" y2="68%" stroke="#00b4d8" strokeWidth="0.5" strokeOpacity="0.12"/>
+          <line x1="18%" y1="48%" x2="22%" y2="72%" stroke="#3b82f6" strokeWidth="0.5" strokeOpacity="0.12"/>
+          {/* Right cluster */}
+          <line x1="82%" y1="12%" x2="90%" y2="28%" stroke="#00b4d8" strokeWidth="0.5" strokeOpacity="0.18"/>
+          <line x1="90%" y1="28%" x2="96%" y2="45%" stroke="#3b82f6" strokeWidth="0.5" strokeOpacity="0.15"/>
+          <line x1="90%" y1="28%" x2="85%" y2="52%" stroke="#00b4d8" strokeWidth="0.5" strokeOpacity="0.15"/>
+          <line x1="85%" y1="52%" x2="92%" y2="70%" stroke="#00b4d8" strokeWidth="0.5" strokeOpacity="0.12"/>
+          <line x1="85%" y1="52%" x2="78%" y2="78%" stroke="#3b82f6" strokeWidth="0.5" strokeOpacity="0.12"/>
+          {/* Bottom center */}
+          <line x1="35%" y1="88%" x2="50%" y2="95%" stroke="#00b4d8" strokeWidth="0.5" strokeOpacity="0.14"/>
+          <line x1="50%" y1="95%" x2="65%" y2="88%" stroke="#3b82f6" strokeWidth="0.5" strokeOpacity="0.12"/>
+          <line x1="42%" y1="82%" x2="35%" y2="88%" stroke="#00b4d8" strokeWidth="0.5" strokeOpacity="0.12"/>
+          {/* Cross connections */}
+          <line x1="18%" y1="48%" x2="35%" y2="88%" stroke="#00b4d8" strokeWidth="0.4" strokeOpacity="0.08"/>
+          <line x1="85%" y1="52%" x2="65%" y2="88%" stroke="#3b82f6" strokeWidth="0.4" strokeOpacity="0.08"/>
+          {/* Left nodes */}
+          <g className="particle-a">
+            <circle cx="4%"  cy="18%" r="2.5" fill="#00d4ff" opacity="0.28"/>
+            <circle cx="11%" cy="35%" r="3.5" fill="#00d4ff" opacity="0.32"/>
+            <circle cx="6%"  cy="55%" r="2"   fill="#3b82f6" opacity="0.22"/>
+            <circle cx="18%" cy="48%" r="4"   fill="#00b4d8" opacity="0.28"/>
+            <circle cx="12%" cy="68%" r="2"   fill="#00d4ff" opacity="0.18"/>
+            <circle cx="22%" cy="72%" r="2.5" fill="#3b82f6" opacity="0.20"/>
+          </g>
+          {/* Right nodes */}
+          <g className="particle-b">
+            <circle cx="82%" cy="12%" r="2.5" fill="#00d4ff" opacity="0.25"/>
+            <circle cx="90%" cy="28%" r="4"   fill="#00d4ff" opacity="0.30"/>
+            <circle cx="96%" cy="45%" r="2"   fill="#3b82f6" opacity="0.20"/>
+            <circle cx="85%" cy="52%" r="3.5" fill="#00b4d8" opacity="0.28"/>
+            <circle cx="92%" cy="70%" r="2"   fill="#00d4ff" opacity="0.18"/>
+            <circle cx="78%" cy="78%" r="2.5" fill="#3b82f6" opacity="0.20"/>
+          </g>
+          {/* Bottom nodes */}
+          <g className="particle-c">
+            <circle cx="35%" cy="88%" r="2.5" fill="#00d4ff" opacity="0.22"/>
+            <circle cx="50%" cy="95%" r="3"   fill="#00b4d8" opacity="0.25"/>
+            <circle cx="65%" cy="88%" r="2.5" fill="#3b82f6" opacity="0.20"/>
+            <circle cx="42%" cy="82%" r="2"   fill="#00d4ff" opacity="0.18"/>
+          </g>
+        </svg>
+      </div>
+
       {/* ── Top nav bar ── */}
       <div className="dsr-topbar px-6 py-2.5 flex items-center justify-between text-sm text-white/90 font-medium tracking-wide">
         <span className="opacity-80">Group 2</span>
@@ -583,9 +643,106 @@ export default function App() {
         <span className="opacity-80">DES Modification</span>
       </div>
 
-      {/* ── Hero section ── */}
-      <div className="dsr-hero mx-4 md:mx-8 mt-4 rounded-2xl overflow-hidden" style={{backgroundImage:'url(/hero-bg.png)', backgroundSize:'cover', backgroundPosition:'center'}}>
-        <div className="px-8 md:px-14 py-10 md:py-14 flex flex-col gap-3">
+      {/* ── Hero section — pure SVG/CSS, no image ── */}
+      <div className="dsr-hero mx-4 md:mx-8 mt-4 rounded-2xl overflow-hidden" style={{background:'linear-gradient(135deg,#030f28 0%,#040e22 50%,#020c1e 100%)'}}>
+
+        {/* Network nodes ambient layer */}
+        <svg className="absolute inset-0 w-full h-full pointer-events-none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <defs>
+            <radialGradient id="nodeGrad1" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stopColor="#00d4ff" stopOpacity="0.9"/>
+              <stop offset="100%" stopColor="#00d4ff" stopOpacity="0"/>
+            </radialGradient>
+          </defs>
+          {/* Chain-link style connection lines */}
+          <line x1="62%" y1="8%"  x2="78%" y2="22%" stroke="#00b4d8" strokeWidth="0.6" strokeOpacity="0.35"/>
+          <line x1="78%" y1="22%" x2="92%" y2="12%" stroke="#00b4d8" strokeWidth="0.6" strokeOpacity="0.3"/>
+          <line x1="78%" y1="22%" x2="88%" y2="42%" stroke="#00b4d8" strokeWidth="0.6" strokeOpacity="0.4"/>
+          <line x1="88%" y1="42%" x2="97%" y2="58%" stroke="#3b82f6" strokeWidth="0.6" strokeOpacity="0.3"/>
+          <line x1="88%" y1="42%" x2="76%" y2="60%" stroke="#00b4d8" strokeWidth="0.6" strokeOpacity="0.35"/>
+          <line x1="76%" y1="60%" x2="88%" y2="78%" stroke="#00b4d8" strokeWidth="0.6" strokeOpacity="0.3"/>
+          <line x1="76%" y1="60%" x2="62%" y2="75%" stroke="#3b82f6" strokeWidth="0.6" strokeOpacity="0.25"/>
+          <line x1="62%" y1="8%"  x2="54%" y2="28%" stroke="#00b4d8" strokeWidth="0.6" strokeOpacity="0.2"/>
+          <line x1="97%" y1="30%" x2="88%" y2="42%" stroke="#00b4d8" strokeWidth="0.5" strokeOpacity="0.25"/>
+          {/* Nodes */}
+          <circle cx="62%" cy="8%"  r="3"   fill="#00d4ff" opacity="0.55" className="hero-node"/>
+          <circle cx="78%" cy="22%" r="4.5" fill="#00d4ff" opacity="0.65" className="hero-node"/>
+          <circle cx="92%" cy="12%" r="2.5" fill="#60d5fa" opacity="0.45"/>
+          <circle cx="88%" cy="42%" r="5"   fill="#00b4d8" opacity="0.55" className="hero-node"/>
+          <circle cx="97%" cy="58%" r="2.5" fill="#3b82f6" opacity="0.4"/>
+          <circle cx="76%" cy="60%" r="3.5" fill="#00d4ff" opacity="0.5"  className="hero-node"/>
+          <circle cx="88%" cy="78%" r="2.5" fill="#60d5fa" opacity="0.35"/>
+          <circle cx="62%" cy="75%" r="2"   fill="#3b82f6" opacity="0.3"/>
+          <circle cx="54%" cy="28%" r="2"   fill="#00d4ff" opacity="0.3"/>
+          <circle cx="97%" cy="30%" r="2"   fill="#60d5fa" opacity="0.35"/>
+          {/* Pulse rings on key nodes */}
+          <circle cx="78%" cy="22%" r="10"  fill="none" stroke="#00d4ff" strokeWidth="0.8" strokeOpacity="0.2"/>
+          <circle cx="88%" cy="42%" r="12"  fill="none" stroke="#00d4ff" strokeWidth="0.8" strokeOpacity="0.18"/>
+        </svg>
+
+        {/* Watermark title behind content */}
+        <div className="absolute right-0 top-0 bottom-0 flex items-center overflow-hidden pointer-events-none select-none" aria-hidden="true">
+          <div className="font-black leading-[0.88] tracking-tight text-white" style={{fontSize:'clamp(80px,14vw,160px)', opacity:0.042, transform:'translateX(8%)'}}>
+            DYNAMIC<br/>SHIFT<br/>ROUTING
+          </div>
+        </div>
+
+        {/* DSR checkerboard logo — top right */}
+        <div className="absolute top-5 right-6 grid grid-cols-4 gap-[3px] pointer-events-none" aria-hidden="true" style={{opacity:0.7}}>
+          {[1,0,1,0, 0,1,0,1, 1,0,1,0, 0,1,0,1].map((on,i)=>(
+            <div key={i} className={`w-4 h-4 md:w-5 md:h-5 rounded-[3px] transition-none ${on?'bg-cyan-400':'bg-cyan-900/20'}`}/>
+          ))}
+        </div>
+
+        {/* 3D Glassmorphic Padlock — right center */}
+        <div className="absolute pointer-events-none hero-lock" style={{right:'12%', top:'50%', transform:'translateY(-50%)', opacity:0.38}} aria-hidden="true">
+          <svg width="150" height="188" viewBox="0 0 150 188" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="shackleGrad" x1="40" y1="30" x2="110" y2="85" gradientUnits="userSpaceOnUse">
+                <stop stopColor="#60d5fa"/>
+                <stop offset="0.5" stopColor="#38bdf8"/>
+                <stop offset="1" stopColor="#2563eb"/>
+              </linearGradient>
+              <linearGradient id="bodyFill" x1="15" y1="85" x2="135" y2="175" gradientUnits="userSpaceOnUse">
+                <stop stopColor="rgba(0,100,200,0.45)"/>
+                <stop offset="1" stopColor="rgba(0,30,100,0.2)"/>
+              </linearGradient>
+              <linearGradient id="bodyBorder" x1="15" y1="85" x2="135" y2="175" gradientUnits="userSpaceOnUse">
+                <stop stopColor="rgba(0,200,255,0.9)"/>
+                <stop offset="1" stopColor="rgba(37,99,235,0.5)"/>
+              </linearGradient>
+              <linearGradient id="bodyHighlight" x1="15" y1="85" x2="135" y2="120" gradientUnits="userSpaceOnUse">
+                <stop stopColor="rgba(255,255,255,0.18)"/>
+                <stop offset="1" stopColor="rgba(255,255,255,0)"/>
+              </linearGradient>
+              <linearGradient id="keyGrad" x1="62" y1="118" x2="88" y2="160" gradientUnits="userSpaceOnUse">
+                <stop stopColor="#00e5ff"/>
+                <stop offset="1" stopColor="#1d4ed8"/>
+              </linearGradient>
+              <filter id="lockGlow">
+                <feGaussianBlur stdDeviation="4" result="blur"/>
+                <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+              </filter>
+            </defs>
+            {/* Outer glow */}
+            <ellipse cx="75" cy="140" rx="45" ry="35" fill="rgba(0,180,216,0.08)"/>
+            {/* Shackle */}
+            <path d="M42 84 L42 50 C42 22 108 22 108 50 L108 84" stroke="url(#shackleGrad)" strokeWidth="13" strokeLinecap="round" strokeLinejoin="round" filter="url(#lockGlow)"/>
+            {/* Body */}
+            <rect x="15" y="84" width="120" height="90" rx="15" fill="url(#bodyFill)" stroke="url(#bodyBorder)" strokeWidth="1.5"/>
+            {/* Top highlight gloss */}
+            <rect x="17" y="86" width="116" height="30" rx="13" fill="url(#bodyHighlight)"/>
+            {/* Keyhole glow ring */}
+            <circle cx="75" cy="128" r="20" fill="rgba(0,180,216,0.08)"/>
+            {/* Keyhole circle */}
+            <circle cx="75" cy="125" r="12" fill="url(#keyGrad)" opacity="0.95"/>
+            {/* Keyhole slot */}
+            <path d="M72 133 L72 148 Q75 153 78 148 L78 133 Q77 137 75 137 Q73 137 72 133Z" fill="url(#keyGrad)" opacity="0.9"/>
+          </svg>
+        </div>
+
+        {/* Content */}
+        <div className="px-8 md:px-14 py-10 md:py-14 flex flex-col gap-3 relative" style={{zIndex:2}}>
           <div className="inline-flex items-center gap-2 px-3 py-1 bg-cyan-500/10 border border-cyan-500/30 text-cyan-300 rounded-full text-xs font-semibold self-start backdrop-blur-sm">
             <Shield size={13} /> Information Assurance &amp; Security — TSU Case Study
           </div>
