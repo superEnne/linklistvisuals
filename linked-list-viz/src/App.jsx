@@ -106,7 +106,7 @@ const fFunction = (right, subkey, useDSR) => {
     const v = S_BOXES[i][row][col].toString(2).padStart(4, '0');
     for (const b of v) sboxOut.push(parseInt(b));
   }
-  let shiftVal = 0;
+  let shiftVal = null;
   let after = sboxOut;
   if (useDSR) {
     // Per case study: take first 5 bits of S-box OUTPUT to determine the shift
@@ -1223,7 +1223,7 @@ export default function App() {
                       </div>
                     ));
                   })()}
-                  <div className="overflow-x-auto pt-4 border-t border-slate-800">
+                  <div className="overflow-x-auto pt-4 border-t border-cyan-900/25">
                     <table className="w-full text-sm min-w-[500px]">
                       <thead>
                         <tr className="border-b border-cyan-900/20">
@@ -1465,7 +1465,7 @@ export default function App() {
                 <li>The shifted block goes through the fixed P-box.</li>
                 <li>XOR with L<sub>i−1</sub> to produce the new R<sub>i</sub>.</li>
               </ol>
-              <p className="text-xs text-slate-500 pt-2 border-t border-slate-800">5 bits is exactly the right width: 2⁵ = 32, the size of the half-block. Fewer bits = constrained diffusion; more bits = redundant (shifting 33 ≡ shifting 1).</p>
+              <p className="text-xs text-slate-500 pt-2 border-t border-cyan-900/25">5 bits is exactly the right width: 2⁵ = 32, the size of the half-block. Fewer bits = constrained diffusion; more bits = redundant (shifting 33 ≡ shifting 1).</p>
             </div>
 
             {/* Visual round comparison */}
@@ -1497,7 +1497,7 @@ export default function App() {
                     <div className="space-y-2">
                       {col.steps.map((s, i) => {
                         const tones = {
-                          slate: 'bg-black/20 border-slate-800 text-slate-300',
+                          slate: 'bg-black/20 border-cyan-900/25 text-slate-300',
                           blue: 'bg-blue-500/10 border-blue-500/30 text-blue-200',
                           amber: 'bg-cyan-500/10 border-cyan-500/30 text-cyan-200',
                           orange: 'bg-gradient-to-r from-cyan-500/20 to-blue-500/20 border-cyan-400/60 text-cyan-100 shadow-[0_0_15px_rgba(0,180,216,0.4)]',
