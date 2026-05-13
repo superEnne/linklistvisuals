@@ -281,21 +281,11 @@ export default function App() {
       setBitToFlip(1);
       runAvalancheCalculation(cleanPlain, cleanKey, 0);
 
-      // Entropy: build a 64-block stream derived from the user's plaintext
-      // (vary each byte position by XOR-ing with the block index) so the
-      // score is in the meaningful 7.9xxx range rather than the trivially
-      // fixed log2(8)=3 of a single 8-byte block.
+      // Entropy: build a 256-block stream (full last-byte sweep 0x00–0xFF)
+      // giving a complete byte-distribution sample in the meaningful 7.9xxx range.
       let dsrStream = '', origStream = '', plainStream = '';
-      for (let i = 0; i < 64; i++) {
-        const variant = sanitizeHex(
-          cleanPlain.split('').map((c, ci) =>
-            ci === cleanPlain.length - 2
-              ? (parseInt(c, 16) ^ (i >> 4)).toString(16).toUpperCase()
-              : ci === cleanPlain.length - 1
-                ? (parseInt(c, 16) ^ (i & 0xf)).toString(16).toUpperCase()
-                : c
-          ).join('')
-        );
+      for (let i = 0; i < 256; i++) {
+        const variant = sanitizeHex(cleanPlain.slice(0, 14) + i.toString(16).padStart(2, '0'));
         dsrStream  += desCrypt(variant, cleanKey, false, true);
         origStream += desCrypt(variant, cleanKey, false, false);
         plainStream += variant;
@@ -383,14 +373,17 @@ export default function App() {
     ];
     const k = sanitizeHex(keyHex || "133457799BBCDFF1");
     const sample = "0123456789ABCDEF";
+    // Warmup: run both algorithms to allow JIT compilation before measuring
+    for (let i = 0; i < 200; i++) { desCrypt(sample, k, false, true); desCrypt(sample, k, false, false); }
+    await new Promise(r => setTimeout(r, 20));
     const results = [];
     for (const s of sizes) {
       const t0 = performance.now();
-      for (let i = 0; i < s.blocks; i++) desCrypt(sample, k, false, false);
-      const tOrig = performance.now() - t0;
-      const t1 = performance.now();
       for (let i = 0; i < s.blocks; i++) desCrypt(sample, k, false, true);
-      const tDSR = performance.now() - t1;
+      const tDSR = performance.now() - t0;
+      const t1 = performance.now();
+      for (let i = 0; i < s.blocks; i++) desCrypt(sample, k, false, false);
+      const tOrig = performance.now() - t1;
       const bytes = s.blocks * 8;
       results.push({
         size: s.label, blocks: s.blocks,
@@ -414,9 +407,9 @@ export default function App() {
     // For meaningful Shannon at byte-level, encrypt many blocks per sample and concatenate
     const rows = ENTROPY_SAMPLES.map(s => {
       const ph = textToHex(s.padEnd(8, ' ').slice(0, 8));
-      // Build a longer stream: encrypt 64 different "messages" derived by varying last byte
+      // Build a 256-block stream: full last-byte sweep (0x00–0xFF) for a complete sample
       let dsrStream = "", origStream = "";
-      for (let i = 0; i < 64; i++) {
+      for (let i = 0; i < 256; i++) {
         const mod = sanitizeHex(ph.slice(0, 14) + i.toString(16).padStart(2, '0'));
         dsrStream += desCrypt(mod, k, false, true);
         origStream += desCrypt(mod, k, false, false);
@@ -1476,7 +1469,7 @@ export default function App() {
               <div className="bg-black/20 p-6 rounded-xl border border-cyan-900/25">
                 <h4 className="font-bold text-cyan-400 mb-3 flex items-center gap-2"><Shuffle size={18} /> How we test</h4>
                 <ol className="text-sm text-slate-400 list-decimal list-inside space-y-2 leading-relaxed">
-                  <li>Encrypt 64 variants of each plaintext.</li>
+                  <li>Encrypt 256 variants of each plaintext (full last-byte sweep).</li>
                   <li>Concatenate ciphertexts and count byte frequencies.</li>
                   <li>Apply H = −Σ p log₂ p.</li>
                 </ol>
