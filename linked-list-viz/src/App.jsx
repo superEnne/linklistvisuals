@@ -1629,6 +1629,161 @@ export default function App() {
         {/* ===================== TAB: EXPLANATION ===================== */}
         {tab === 'explanation' && (
           <div className="space-y-6 animate-in fade-in duration-300">
+
+            {/* ── DSR Formula Visualization ── */}
+            <div className="glass-card-strong rounded-2xl p-6 shadow-md space-y-6">
+              <h3 className="text-lg font-bold text-slate-100 flex items-center gap-2">
+                <Calculator size={18} className="text-cyan-400" /> DSR Formula — Visual Breakdown
+              </h3>
+
+              {/* Formula cards: Orig DES vs DSR */}
+              <div className="grid md:grid-cols-2 gap-4">
+
+                {/* Original DES f-function */}
+                <div className="bg-blue-950/30 border border-blue-500/30 rounded-xl p-5 space-y-3">
+                  <div className="text-xs font-bold uppercase tracking-widest text-blue-400 mb-1">Original DES — f-function</div>
+                  {/* Formula line */}
+                  <div className="flex items-center gap-1 flex-wrap font-mono text-sm leading-loose select-all">
+                    <span className="text-white font-bold">f</span>
+                    <span className="text-slate-500">(</span>
+                    <span className="text-yellow-300 font-bold">R</span>
+                    <span className="text-slate-500">,</span>
+                    <span className="text-violet-300 font-bold">K</span>
+                    <span className="text-slate-500">)</span>
+                    <span className="text-slate-400 mx-1">=</span>
+                    {/* P */}
+                    <span className="bg-orange-500/20 border border-orange-500/40 text-orange-300 font-bold px-2 py-0.5 rounded">P</span>
+                    <span className="text-slate-500">(</span>
+                    {/* S */}
+                    <span className="bg-purple-500/20 border border-purple-500/40 text-purple-300 font-bold px-2 py-0.5 rounded">S</span>
+                    <span className="text-slate-500">(</span>
+                    {/* E */}
+                    <span className="bg-blue-500/20 border border-blue-500/40 text-blue-300 font-bold px-2 py-0.5 rounded">E</span>
+                    <span className="text-slate-500">(</span>
+                    <span className="text-yellow-300 font-bold">R</span>
+                    <span className="text-slate-500">)</span>
+                    {/* XOR */}
+                    <span className="text-emerald-400 font-bold mx-1 text-lg">⊕</span>
+                    <span className="text-violet-300 font-bold">K</span>
+                    <span className="text-slate-500">))</span>
+                    <span className="text-slate-500">)</span>
+                  </div>
+                  {/* Bit-width pipeline */}
+                  <div className="flex items-center gap-1 text-[10px] font-mono text-slate-500 flex-wrap mt-1">
+                    <span className="bg-yellow-900/30 border border-yellow-700/30 text-yellow-400 px-1.5 py-0.5 rounded">R: 32 b</span>
+                    <span>→</span>
+                    <span className="bg-blue-900/30 border border-blue-700/30 text-blue-300 px-1.5 py-0.5 rounded">E: 48 b</span>
+                    <span>⊕</span>
+                    <span className="bg-violet-900/30 border border-violet-700/30 text-violet-300 px-1.5 py-0.5 rounded">K: 48 b</span>
+                    <span>→</span>
+                    <span className="bg-purple-900/30 border border-purple-700/30 text-purple-300 px-1.5 py-0.5 rounded">S: 32 b</span>
+                    <span>→</span>
+                    <span className="bg-orange-900/30 border border-orange-700/30 text-orange-300 px-1.5 py-0.5 rounded">P: 32 b</span>
+                  </div>
+                </div>
+
+                {/* DSR f-function */}
+                <div className="bg-cyan-950/30 border border-cyan-500/40 rounded-xl p-5 space-y-3 relative overflow-hidden">
+                  <div className="absolute -right-3 -top-3 text-cyan-500/8"><Zap size={80} /></div>
+                  <div className="text-xs font-bold uppercase tracking-widest text-cyan-400 mb-1">Modified DES (DSR) — f-function</div>
+
+                  {/* Step 1: shift amount */}
+                  <div className="bg-cyan-500/10 border border-cyan-500/20 rounded-lg px-3 py-2 space-y-1">
+                    <div className="text-[10px] text-slate-500 uppercase tracking-wider">Step 1 — compute shift amount</div>
+                    <div className="flex items-center gap-1 flex-wrap font-mono text-sm leading-loose">
+                      <span className="text-cyan-200 font-bold">n</span>
+                      <span className="text-slate-400 mx-1">=</span>
+                      <span className="text-slate-400">int( bits </span>
+                      <span className="text-purple-300 font-bold bg-purple-500/10 px-1 rounded">1–5</span>
+                      <span className="text-slate-400 mx-0.5">of</span>
+                      <span className="bg-purple-500/20 border border-purple-500/40 text-purple-300 font-bold px-2 py-0.5 rounded">S</span>
+                      <span className="text-slate-500">(</span>
+                      <span className="bg-blue-500/20 border border-blue-500/40 text-blue-300 font-bold px-2 py-0.5 rounded">E</span>
+                      <span className="text-slate-500">(</span>
+                      <span className="text-yellow-300 font-bold">R</span>
+                      <span className="text-slate-500">)</span>
+                      <span className="text-emerald-400 font-bold mx-1 text-lg">⊕</span>
+                      <span className="text-violet-300 font-bold">K</span>
+                      <span className="text-slate-500">)</span>
+                      <span className="text-slate-400 ml-1">)</span>
+                    </div>
+                    <div className="text-[10px] text-slate-500">→ n ∈ &#123;0, 1, …, 31&#125;  (2⁵ = 32 = block width)</div>
+                  </div>
+
+                  {/* Step 2: full formula */}
+                  <div className="bg-cyan-500/10 border border-cyan-500/20 rounded-lg px-3 py-2 space-y-1">
+                    <div className="text-[10px] text-slate-500 uppercase tracking-wider">Step 2 — apply with dynamic shift</div>
+                    <div className="flex items-center gap-1 flex-wrap font-mono text-sm leading-loose">
+                      <span className="text-white font-bold">f</span>
+                      <span className="text-slate-400 text-xs">DSR</span>
+                      <span className="text-slate-500">(</span>
+                      <span className="text-yellow-300 font-bold">R</span>
+                      <span className="text-slate-500">,</span>
+                      <span className="text-violet-300 font-bold">K</span>
+                      <span className="text-slate-500">)</span>
+                      <span className="text-slate-400 mx-1">=</span>
+                      <span className="bg-orange-500/20 border border-orange-500/40 text-orange-300 font-bold px-2 py-0.5 rounded">P</span>
+                      <span className="text-slate-500">(</span>
+                      {/* ROTL — the key DSR step */}
+                      <span className="bg-gradient-to-r from-cyan-500/30 to-blue-500/30 border border-cyan-400/60 text-cyan-200 font-black px-2 py-0.5 rounded shadow-[0_0_10px_rgba(0,200,255,0.3)]">ROTL</span>
+                      <span className="text-slate-500">(</span>
+                      <span className="bg-purple-500/20 border border-purple-500/40 text-purple-300 font-bold px-2 py-0.5 rounded">S</span>
+                      <span className="text-slate-500">(</span>
+                      <span className="bg-blue-500/20 border border-blue-500/40 text-blue-300 font-bold px-2 py-0.5 rounded">E</span>
+                      <span className="text-slate-500">(</span>
+                      <span className="text-yellow-300 font-bold">R</span>
+                      <span className="text-slate-500">)</span>
+                      <span className="text-emerald-400 font-bold mx-1 text-lg">⊕</span>
+                      <span className="text-violet-300 font-bold">K</span>
+                      <span className="text-slate-500">),</span>
+                      <span className="text-cyan-200 font-bold mx-1">n</span>
+                      <span className="text-slate-500">)))</span>
+                    </div>
+                  </div>
+
+                  {/* Bit-width pipeline with ROTL */}
+                  <div className="flex items-center gap-1 text-[10px] font-mono text-slate-500 flex-wrap">
+                    <span className="bg-yellow-900/30 border border-yellow-700/30 text-yellow-400 px-1.5 py-0.5 rounded">R: 32 b</span>
+                    <span>→</span>
+                    <span className="bg-blue-900/30 border border-blue-700/30 text-blue-300 px-1.5 py-0.5 rounded">E: 48 b</span>
+                    <span>⊕</span>
+                    <span className="bg-violet-900/30 border border-violet-700/30 text-violet-300 px-1.5 py-0.5 rounded">K: 48 b</span>
+                    <span>→</span>
+                    <span className="bg-purple-900/30 border border-purple-700/30 text-purple-300 px-1.5 py-0.5 rounded">S: 32 b</span>
+                    <span>→</span>
+                    <span className="bg-cyan-900/40 border border-cyan-500/60 text-cyan-300 font-bold px-1.5 py-0.5 rounded shadow-[0_0_6px_rgba(0,200,255,0.2)]">ROTL(n): 32 b</span>
+                    <span>→</span>
+                    <span className="bg-orange-900/30 border border-orange-700/30 text-orange-300 px-1.5 py-0.5 rounded">P: 32 b</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Symbol legend */}
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2 pt-2 border-t border-cyan-900/25">
+                {[
+                  { sym: 'R',    color: 'text-yellow-300',  bg: 'bg-yellow-900/20 border-yellow-700/30', desc: '32-bit right half' },
+                  { sym: 'K',    color: 'text-violet-300',  bg: 'bg-violet-900/20 border-violet-700/30', desc: '48-bit round subkey' },
+                  { sym: 'E',    color: 'text-blue-300',    bg: 'bg-blue-900/20 border-blue-700/30',     desc: 'Expansion (32→48)' },
+                  { sym: 'S',    color: 'text-purple-300',  bg: 'bg-purple-900/20 border-purple-700/30', desc: '8 S-boxes (48→32)' },
+                  { sym: 'ROTL', color: 'text-cyan-300',    bg: 'bg-cyan-900/30 border-cyan-500/40',     desc: 'Circular left shift' },
+                  { sym: 'P',    color: 'text-orange-300',  bg: 'bg-orange-900/20 border-orange-700/30', desc: 'P-box permutation' },
+                ].map(({ sym, color, bg, desc }) => (
+                  <div key={sym} className={`border rounded-lg px-3 py-2 ${bg} flex flex-col gap-0.5`}>
+                    <span className={`font-mono font-black text-base ${color}`}>{sym}</span>
+                    <span className="text-[10px] text-slate-500 leading-tight">{desc}</span>
+                  </div>
+                ))}
+              </div>
+
+              {/* Difference callout */}
+              <div className="flex items-start gap-3 bg-gradient-to-r from-cyan-500/10 to-blue-500/10 border border-cyan-500/30 rounded-xl p-4">
+                <Zap size={20} className="text-cyan-400 shrink-0 mt-0.5" />
+                <div className="text-sm text-slate-300 leading-relaxed">
+                  <strong className="text-cyan-300">The only difference between DES and DSR</strong> is the <span className="font-mono bg-cyan-500/20 text-cyan-200 px-1.5 py-0.5 rounded border border-cyan-500/30 font-bold">ROTL(·, n)</span> step inserted between S and P. This single operation makes every bit's routing data-dependent — n changes every round because the S-box output changes every round.
+                </div>
+              </div>
+            </div>
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="glass-card-strong rounded-2xl p-6 shadow-md">
                 <div className="w-10 h-10 rounded-full bg-blue-500/20 flex items-center justify-center mb-4 text-blue-400"><Info size={24} /></div>
