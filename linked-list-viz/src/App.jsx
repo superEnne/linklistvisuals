@@ -491,13 +491,13 @@ export default function App() {
                 const stateHex = bitsToHex(r.L) + bitsToHex(r.R);
                 const isIP = i === 0, isFinal = i === 16;
                 return (
-                  <div key={i} className={`grid grid-cols-12 gap-1 px-3 py-1.5 text-xs font-mono border-b border-cyan-900/20 ${isIP ? 'bg-black/30' : isFinal ? 'bg-emerald-950/20' : ''}`}>
-                    <div className={`col-span-1 font-bold ${isIP ? 'text-slate-500' : isFinal ? 'text-emerald-400' : accentClass}`}>
-                      {isIP ? 'IP' : isFinal ? 'Final' : `R${i}`}
+                  <div key={i} className={`grid grid-cols-12 gap-1 px-3 py-1.5 text-xs font-mono border-b border-cyan-900/20 ${isIP ? 'bg-black/30' : isFinal ? 'bg-amber-950/20' : ''}`}>
+                    <div className={`col-span-1 font-bold ${isIP ? 'text-slate-500' : isFinal ? 'text-amber-400' : accentClass}`}>
+                      {isIP ? 'IP' : isFinal ? 'R16' : `R${i}`}
                     </div>
                     <div className="col-span-2 text-slate-300">{bitsToHex(r.L)}</div>
                     <div className="col-span-2 text-slate-300">{bitsToHex(r.R)}</div>
-                    <div className={`col-span-3 font-semibold text-[10px] ${isFinal ? 'text-emerald-300' : stateColor}`}>
+                    <div className={`col-span-3 font-semibold text-[10px] ${isFinal ? 'text-amber-300' : stateColor}`}>
                       {stateHex}
                     </div>
                     <div className="col-span-1">
@@ -507,12 +507,25 @@ export default function App() {
                   </div>
                 );
               })}
+              {/* IP⁻¹ output row — the ACTUAL cipher/plaintext output after inverse permutation */}
+              {trace.cipher && (
+                <div className="grid grid-cols-12 gap-1 px-3 py-2 text-xs font-mono border-b border-emerald-500/20 bg-emerald-950/25">
+                  <div className="col-span-1 font-bold text-emerald-400">IP⁻¹</div>
+                  <div className="col-span-2 text-emerald-200">{trace.cipher.slice(0,8)}</div>
+                  <div className="col-span-2 text-emerald-200">{trace.cipher.slice(8,16)}</div>
+                  <div className="col-span-3 font-bold text-emerald-300 text-[10px]">{trace.cipher}</div>
+                  <div className="col-span-4 text-emerald-600 text-[10px] italic flex items-center">
+                    ← actual {isDecrypt ? 'plaintext' : 'ciphertext'} output
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>
         <div className="px-3 py-2 text-[11px] text-slate-500 bg-black/30 border-t border-cyan-900/30 flex flex-wrap gap-3">
           <span><span className="text-yellow-400 font-semibold">Yellow row</span> = raw hex before IP</span>
-          <span><span className={`font-semibold ${stateColor}`}>Plaintext (L‖R)</span> = full 64-bit block state at this round</span>
+          <span><span className="text-amber-400 font-semibold">R16 row</span> = state after all 16 Feistel rounds, before IP⁻¹</span>
+          <span><span className="text-emerald-400 font-semibold">IP⁻¹ row</span> = actual {isDecrypt ? 'plaintext' : 'ciphertext'} output after inverse permutation</span>
           <span><span className="text-cyan-400 font-semibold">Shift</span> = DSR circular shift amount (0–31)</span>
         </div>
       </div>
