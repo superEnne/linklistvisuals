@@ -135,6 +135,12 @@ const desCryptTrace = (dataHex, keyHex, isDecrypt = false, useDSR = true) => {
 const desCrypt = (dataHex, keyHex, isDecrypt = false, useDSR = true) =>
   desCryptTrace(dataHex, keyHex, isDecrypt, useDSR).cipher;
 
+// ============================================================================
+// ANALYSIS FUNCTIONS
+// avalancheByRound — per-round bit-difference series for one flipped input bit
+// shannonEntropy    — H(X) in bits/byte over a hex ciphertext stream
+// ============================================================================
+
 // Per-round avalanche (% of 64 ciphertext bits that differ when 1 input bit is flipped)
 // We measure the "intermediate ciphertext" at each round (apply IP_INV to current state).
 const avalancheByRound = (p1Hex, keyHex, flipIdx, useDSR) => {
@@ -209,6 +215,17 @@ export default function App() {
   useEffect(() => {
     if (inputMode === 'text') setPlainHex(plainText === "" ? "" : textToHex(plainText));
   }, [plainText, inputMode]);
+
+  // ============================================================================
+  // EVENT HANDLERS
+  // runAvalancheCalculation — single-bit-flip avalanche, called on encrypt + manual trigger
+  // handleEncrypt           — encrypts PT with both DSR and Orig DES, seeds all tabs
+  // handleDecrypt           — decrypts DSR/Orig ciphertexts and stores traces
+  // handleManualAvalanche   — re-runs avalanche with user-supplied PT/key/bit index
+  // runAggregateAvalanche   — sweeps all 64 bit positions for a statistically fair average
+  // runBenchmark            — real performance.now() timing across 4 stream sizes
+  // runEntropyTable         — computes Shannon H for 8 sample plaintexts (256 blocks each)
+  // ============================================================================
 
   // -------- Avalanche calc (uses REAL crypto -- DSR) --------
   const runAvalancheCalculation = (baseHex, k, flipIdx) => {
@@ -302,6 +319,7 @@ export default function App() {
     } catch (e) { alert("Encryption error."); }
   };
 
+  // -------- Decrypt --------
   const handleDecrypt = () => {
     if (!cipherOut) return;
     try {
@@ -314,6 +332,7 @@ export default function App() {
     } catch (e) { alert("Decryption error."); }
   };
 
+  // -------- Manual avalanche re-run (user changes PT/key/bit) --------
   const handleManualAvalanche = () => {
     const cleanKey = sanitizeHex(avKey || "");
     const cleanP1 = sanitizeHex(avP1 || "");
@@ -426,6 +445,9 @@ export default function App() {
 
   // ============================================================================
   // RENDER HELPERS
+  // TabBtn              — reusable nav tab button with active-state styling
+  // renderRoundTrace    — full 19-row trace table: PT/CT → IP → R1–R16 → IP⁻¹
+  // renderComparisonTable — side-by-side DSR vs Orig DES state at every round
   // ============================================================================
   const TabBtn = ({ id, label, icon: Icon, color = "cyan" }) => {
     const active = tab === id;
