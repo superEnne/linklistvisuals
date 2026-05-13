@@ -824,11 +824,11 @@ export default function App() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {inputMode === 'text' ? (
                   <div className="space-y-1">
-                    <label className="text-xs text-slate-400 uppercase tracking-wider font-semibold">Human Plaintext (Max 8 chars)</label>
-                    <input type="text" value={plainText} onChange={(e) => setPlainText(e.target.value)}
-                      placeholder="E.g., HELLO" maxLength={8}
+                    <label className="text-xs text-slate-400 uppercase tracking-wider font-semibold">Human Plaintext (Max 15 chars)</label>
+                    <input type="text" value={plainText} onChange={(e) => setPlainText(e.target.value.slice(0, 15))}
+                      placeholder="E.g., HELLO WORLD" maxLength={15}
                       className="w-full bg-black/40 border border-cyan-900/50 rounded-lg p-3 text-cyan-300 font-mono focus:border-cyan-500 outline-none" />
-                    {plainHex && <div className="text-xs text-slate-500 mt-1 font-mono">Hex: <span className="text-slate-400">{plainHex.padEnd(16, '0')}</span></div>}
+                    {plainHex && <div className="text-xs text-slate-500 mt-1 font-mono">Hex: <span className="text-slate-400">{plainHex.padEnd(16, '0')}</span><span className="text-slate-600 ml-2">(first 8 chars used — DES block size)</span></div>}
                   </div>
                 ) : (
                   <div className="space-y-1">
