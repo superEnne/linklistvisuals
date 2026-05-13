@@ -170,6 +170,35 @@ const shannonEntropy = (hex) => {
 };
 
 // ============================================================================
+// EXPLANATION TAB — Round Animator & ROTL Visualizer constants
+// ============================================================================
+// Hardcoded from real Round 1: PT=676179706F726E68, K=133457799BBCDFF1
+// S-box output before ROTL → 8BC12AAA; first-5 bits (10001) = n=17; ROTL(17) → 55551782
+const ROTL_DEMO_BITS   = [1,0,0,0,1,0,1,1,1,1,0,0,0,0,0,1,0,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0];
+const ROTL_DEMO_N      = 17;
+const ROTL_DEMO_ROTLED = [0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,0,0,1,0,1,1,1,1,0,0,0,0,0,1,0];
+
+const PIPELINE_STEPS = [
+  { label: 'R — Right Half Input',        desc: '32-bit right half from the previous Feistel round feeds into the f-function.',             color: 'yellow',  badge: '32 b' },
+  { label: 'E-box Expansion',             desc: 'Expands 32 → 48 bits by duplicating 16 boundary bits across the 8 S-box inputs.',         color: 'blue',    badge: '48 b' },
+  { label: 'XOR ⊕ Round Subkey K',        desc: 'Mixed with the 48-bit subkey derived by PC-1 / PC-2 from the master key schedule.',       color: 'violet',  badge: '48 b' },
+  { label: 'S-box Substitution',          desc: '8 S-boxes: each 6-bit input → 4-bit output. Core non-linear confusion layer.',            color: 'purple',  badge: '32 b' },
+  { label: '⚡ ROTL(n) — DSR Only',       desc: 'Read first 5 bits of S-box output → n ∈ {0…31}. Circular left shift all 32 bits by n.', color: 'cyan',    badge: '32 b', isDSR: true },
+  { label: 'P-box Permutation',           desc: 'Fixed wiring re-routes bits — but the input is now data-dependent, changing every round.', color: 'orange',  badge: '32 b' },
+  { label: 'XOR ⊕ L → New Right Half',   desc: 'XOR with L from the previous round → becomes the new R for the next Feistel round.',      color: 'emerald', badge: '32 b' },
+];
+
+const STEP_COLORS = {
+  yellow:  { border: 'border-yellow-500/70',  bg: 'bg-yellow-500/10',  text: 'text-yellow-200',  num: 'bg-yellow-500/20 border-yellow-500/60 text-yellow-300' },
+  blue:    { border: 'border-blue-500/70',    bg: 'bg-blue-500/10',    text: 'text-blue-200',    num: 'bg-blue-500/20 border-blue-500/60 text-blue-300' },
+  violet:  { border: 'border-violet-500/70',  bg: 'bg-violet-500/10',  text: 'text-violet-200',  num: 'bg-violet-500/20 border-violet-500/60 text-violet-300' },
+  purple:  { border: 'border-purple-500/70',  bg: 'bg-purple-500/10',  text: 'text-purple-200',  num: 'bg-purple-500/20 border-purple-500/60 text-purple-300' },
+  cyan:    { border: 'border-cyan-400/80',    bg: 'bg-cyan-500/15 shadow-[0_0_22px_rgba(0,200,255,0.22)]', text: 'text-cyan-200', num: 'bg-cyan-500/20 border-cyan-400/70 text-cyan-200 shadow-[0_0_10px_rgba(0,200,255,0.5)]' },
+  orange:  { border: 'border-orange-500/70',  bg: 'bg-orange-500/10',  text: 'text-orange-200',  num: 'bg-orange-500/20 border-orange-500/60 text-orange-300' },
+  emerald: { border: 'border-emerald-500/70', bg: 'bg-emerald-500/10', text: 'text-emerald-200', num: 'bg-emerald-500/20 border-emerald-500/60 text-emerald-300' },
+};
+
+// ============================================================================
 // COMPONENT
 // ============================================================================
 export default function App() {
@@ -212,9 +241,23 @@ export default function App() {
   // ---- Aggregate avalanche (every bit) ----
   const [aggregateAv, setAggregateAv] = useState(null);
 
+  // ---- Tab: Explanation — round pipeline animator + ROTL visualizer ----
+  const [pipelineStep, setPipelineStep] = useState(-1);
+  const [pipelineActive, setPipelineActive] = useState(false);
+  const [rotlPhase, setRotlPhase] = useState(0); // 0=idle 1=highlight-n 2=rotating 3=done
+
   useEffect(() => {
     if (inputMode === 'text') setPlainHex(plainText === "" ? "" : textToHex(plainText));
   }, [plainText, inputMode]);
+
+  // Pipeline step-by-step timer — advances one stage every ~900ms (1600ms on DSR step)
+  useEffect(() => {
+    if (!pipelineActive || pipelineStep < 0) return;
+    if (pipelineStep >= PIPELINE_STEPS.length) { setPipelineActive(false); return; }
+    const delay = pipelineStep === 4 ? 1600 : 900;
+    const t = setTimeout(() => setPipelineStep(s => s + 1), delay);
+    return () => clearTimeout(t);
+  }, [pipelineActive, pipelineStep]);
 
   // ============================================================================
   // EVENT HANDLERS
@@ -1780,6 +1823,282 @@ export default function App() {
                 <Zap size={20} className="text-cyan-400 shrink-0 mt-0.5" />
                 <div className="text-sm text-slate-300 leading-relaxed">
                   <strong className="text-cyan-300">The only difference between DES and DSR</strong> is the <span className="font-mono bg-cyan-500/20 text-cyan-200 px-1.5 py-0.5 rounded border border-cyan-500/30 font-bold">ROTL(·, n)</span> step inserted between S and P. This single operation makes every bit's routing data-dependent — n changes every round because the S-box output changes every round.
+                </div>
+              </div>
+            </div>
+
+            {/* ── Animated Round Pipeline ── */}
+            <div className="glass-card-strong rounded-2xl p-6 shadow-md space-y-5">
+              <div className="flex items-center justify-between flex-wrap gap-3">
+                <h3 className="text-lg font-bold text-slate-100 flex items-center gap-2">
+                  <Play size={18} className="text-cyan-400" /> One DSR Round — Animated Pipeline
+                </h3>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => { setPipelineStep(0); setPipelineActive(true); setRotlPhase(0); }}
+                    disabled={pipelineActive}
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-cyan-500/20 border border-cyan-500/40 text-cyan-300 hover:bg-cyan-500/30 disabled:opacity-40 disabled:cursor-not-allowed transition-all">
+                    <Play size={12} /> {pipelineActive ? 'Playing…' : '▶ Play Round'}
+                  </button>
+                  <button
+                    onClick={() => { setPipelineStep(-1); setPipelineActive(false); setRotlPhase(0); }}
+                    className="px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-800 border border-slate-700 text-slate-400 hover:text-slate-200 transition-all">
+                    ↺ Reset
+                  </button>
+                </div>
+              </div>
+
+              {/* Step list */}
+              <div className="space-y-1.5">
+                {PIPELINE_STEPS.map((step, i) => {
+                  const sc = STEP_COLORS[step.color];
+                  const isActive = pipelineStep === i;
+                  const isDone   = pipelineStep > i && pipelineStep >= 0;
+                  const isIdle   = pipelineStep < 0;
+                  return (
+                    <div key={i}>
+                      <div className={`flex items-start gap-3 transition-all duration-500 ${
+                        isIdle ? 'opacity-70' : isActive ? 'opacity-100 scale-[1.015]' : isDone ? 'opacity-55' : 'opacity-25'
+                      }`}>
+                        {/* Number badge */}
+                        <div className={`w-7 h-7 rounded-full flex-shrink-0 flex items-center justify-center text-xs font-bold border mt-1 transition-all duration-500 ${
+                          isDone ? 'bg-emerald-500/20 border-emerald-500/50 text-emerald-400' :
+                          isActive ? sc.num : 'bg-black/30 border-slate-800 text-slate-600'
+                        }`}>{isDone ? '✓' : i + 1}</div>
+
+                        {/* Content box */}
+                        <div className={`flex-1 border rounded-xl px-4 py-2.5 transition-all duration-500 ${
+                          isActive ? `${sc.border} ${sc.bg}` :
+                          isDone   ? 'border-slate-800/60 bg-black/20' :
+                                     'border-slate-900/60 bg-black/10'
+                        }`}>
+                          <div className={`text-sm font-semibold transition-colors duration-300 ${
+                            isActive ? (step.isDSR ? 'text-cyan-200' : sc.text) : isDone ? 'text-slate-500' : 'text-slate-700'
+                          }`}>{step.label}</div>
+                          {isActive && (
+                            <div className="text-xs text-slate-400 mt-0.5 leading-relaxed animate-in fade-in duration-300">
+                              {step.desc}
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Bit badge */}
+                        <div className={`text-[10px] font-mono px-2 py-1 rounded border mt-1 flex-shrink-0 transition-all duration-300 ${
+                          isActive ? 'border-cyan-900/50 bg-cyan-950/30 text-cyan-400' :
+                          isDone   ? 'border-slate-800/40 text-slate-600' : 'border-slate-900/40 text-slate-800'
+                        }`}>{step.badge}</div>
+                      </div>
+                      {i < PIPELINE_STEPS.length - 1 && (
+                        <div className={`ml-[22px] flex items-center py-0.5 transition-colors duration-500 ${pipelineStep > i && pipelineStep >= 0 ? 'text-emerald-600' : 'text-slate-800'}`}>
+                          <div className="w-0.5 h-3 bg-current mx-auto rounded-full" />
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Progress hint */}
+              {pipelineStep < 0 && (
+                <p className="text-xs text-slate-600 text-center">Press ▶ Play Round to watch each stage light up in sequence</p>
+              )}
+              {pipelineStep >= PIPELINE_STEPS.length && (
+                <p className="text-xs text-emerald-500 text-center font-medium">Round complete — new R is ready for the next Feistel round.</p>
+              )}
+            </div>
+
+            {/* ── ROTL Visualizer ── */}
+            <div className="glass-card-strong rounded-2xl p-6 shadow-md space-y-6">
+              <div className="flex items-center justify-between flex-wrap gap-3">
+                <h3 className="text-lg font-bold text-slate-100 flex items-center gap-2">
+                  <Zap size={18} className="text-cyan-400" /> Circular Left Shift (ROTL) — Visualized
+                </h3>
+                <div className="text-xs text-slate-500 font-mono">Real values · Round 1 · PT=<span className="text-slate-400">676179706F726E68</span></div>
+              </div>
+
+              <div className="grid md:grid-cols-2 gap-6 items-start">
+
+                {/* ── Left: SVG ring ── */}
+                <div className="flex flex-col items-center gap-4">
+                  <div className="text-xs text-slate-500 text-center leading-relaxed">
+                    32 bits arranged in a ring — bit 0 at top.<br/>
+                    The <span className="text-amber-400 font-bold">amber</span> cells (bits 0–4) encode n. Press Animate to spin the ring.
+                  </div>
+
+                  <svg width="260" height="260" viewBox="-130 -130 260 260" className="overflow-visible">
+                    {/* Track */}
+                    <circle r={104} fill="none" stroke="#0f172a" strokeWidth={24} />
+                    <circle r={104} fill="none" stroke="#1e293b" strokeWidth={20} />
+
+                    {/* Rotating bit ring */}
+                    <g style={{
+                      transformBox: 'fill-box',
+                      transformOrigin: 'center',
+                      transform: rotlPhase >= 2
+                        ? `rotate(-${(ROTL_DEMO_N / 32) * 360}deg)`
+                        : 'rotate(0deg)',
+                      transition: rotlPhase === 2
+                        ? 'transform 1.6s cubic-bezier(0.34, 1.56, 0.64, 1)'
+                        : 'none',
+                    }}>
+                      {ROTL_DEMO_BITS.map((bit, i) => {
+                        const angle  = (i / 32) * 2 * Math.PI - Math.PI / 2;
+                        const cx     = 100 * Math.cos(angle);
+                        const cy     = 100 * Math.sin(angle);
+                        const isN5   = i < 5;
+                        const isWrap = i < ROTL_DEMO_N && rotlPhase >= 1;
+                        const fill   = bit === 1
+                          ? (isN5 ? 'rgba(251,191,36,0.30)' : isWrap ? 'rgba(6,182,212,0.30)' : 'rgba(99,102,241,0.20)')
+                          : 'rgba(15,23,42,0.95)';
+                        const stroke = isN5 ? '#f59e0b' : isWrap ? '#22d3ee' : '#334155';
+                        const strokeW = isN5 ? 2 : 1.5;
+                        const textFill = bit === 1
+                          ? (isN5 ? '#fbbf24' : isWrap ? '#67e8f9' : '#94a3b8')
+                          : '#334155';
+                        return (
+                          <g key={i}>
+                            <circle cx={cx} cy={cy} r={10} fill={fill} stroke={stroke} strokeWidth={strokeW} />
+                            <text x={cx} y={cy} textAnchor="middle" dominantBaseline="middle"
+                              fontSize={8} fontWeight="bold" fill={textFill}>{bit}</text>
+                            {/* tiny index label just outside the ring */}
+                            <text
+                              x={cx * 1.25} y={cy * 1.25}
+                              textAnchor="middle" dominantBaseline="middle"
+                              fontSize={4.5} fill={isN5 ? '#92400e' : '#1e293b'}>{i}</text>
+                          </g>
+                        );
+                      })}
+                    </g>
+
+                    {/* Fixed "Output bit[0]" pointer — stays at top while ring rotates */}
+                    <polygon points="0,-118 -5,-110 5,-110" fill="#22c55e" />
+                    <line x1="0" y1="-110" x2="0" y2="-114" stroke="#22c55e" strokeWidth={2} />
+                    <text x={0} y={-126} textAnchor="middle" fontSize={7.5} fill="#22c55e" fontWeight="bold">bit[0]</text>
+
+                    {/* Center labels */}
+                    <text x={0} y={-7} textAnchor="middle" fontSize={10} fill="#475569">ROTL</text>
+                    <text x={0} y={12} textAnchor="middle" fontSize={20} fontWeight="bold" fill="#22d3ee">({ROTL_DEMO_N})</text>
+                    {rotlPhase >= 1 && (
+                      <text x={0} y={32} textAnchor="middle" fontSize={8} fill="#64748b">↺ counter-clockwise</text>
+                    )}
+                  </svg>
+
+                  {/* Controls */}
+                  <div className="flex gap-2">
+                    <button
+                      disabled={rotlPhase === 2}
+                      onClick={() => {
+                        setRotlPhase(1);
+                        setTimeout(() => setRotlPhase(2), 700);
+                        setTimeout(() => setRotlPhase(3), 2500);
+                      }}
+                      className="px-4 py-2 rounded-xl text-xs font-bold bg-cyan-500/20 border border-cyan-500/40 text-cyan-300 hover:bg-cyan-500/30 disabled:opacity-40 disabled:cursor-not-allowed transition-all">
+                      ⚡ Animate ROTL({ROTL_DEMO_N})
+                    </button>
+                    <button
+                      onClick={() => setRotlPhase(0)}
+                      className="px-3 py-2 rounded-xl text-xs font-bold bg-slate-800 border border-slate-700 text-slate-400 hover:text-slate-200 transition-all">
+                      ↺ Reset
+                    </button>
+                  </div>
+                </div>
+
+                {/* ── Right: n derivation + register view ── */}
+                <div className="space-y-5">
+
+                  {/* Step 1: derive n */}
+                  <div className={`border rounded-xl p-4 space-y-3 transition-all duration-500 ${
+                    rotlPhase >= 1 ? 'border-amber-500/40 bg-amber-500/5' : 'border-slate-800/50 bg-black/20'
+                  }`}>
+                    <div className="text-xs font-bold uppercase tracking-widest text-slate-500">Step 1 — derive shift amount n</div>
+                    <div className="space-y-2">
+                      <div className="text-[11px] text-slate-400">S-box output (hex): <span className="font-mono text-purple-300">8BC12AAA</span></div>
+                      <div className="flex gap-0.5 flex-wrap">
+                        {ROTL_DEMO_BITS.slice(0, 5).map((b, i) => (
+                          <div key={i} className={`w-7 h-7 rounded text-xs font-mono font-bold flex items-center justify-center border transition-all duration-500 ${
+                            rotlPhase >= 1
+                              ? 'border-amber-400/80 bg-amber-500/25 text-amber-200'
+                              : 'border-slate-700 bg-black/30 text-slate-500'
+                          }`}>{b}</div>
+                        ))}
+                        <div className="flex items-center ml-2 gap-1 text-slate-500 text-xs">
+                          <span>= binary</span>
+                          <span className={`font-mono font-bold transition-colors duration-500 ${rotlPhase >= 1 ? 'text-amber-300' : 'text-slate-600'}`}>
+                            {ROTL_DEMO_BITS.slice(0,5).join('')}
+                          </span>
+                        </div>
+                      </div>
+                      <div className={`flex items-center gap-2 text-sm transition-all duration-500 ${rotlPhase >= 1 ? 'opacity-100' : 'opacity-30'}`}>
+                        <span className="text-slate-400">int(</span>
+                        <span className="font-mono text-amber-300 font-bold">{ROTL_DEMO_BITS.slice(0,5).join('')}</span>
+                        <span className="text-slate-400">₂) =</span>
+                        <span className="font-mono text-2xl font-black text-amber-400">{ROTL_DEMO_N}</span>
+                        <span className="text-slate-500 text-xs">← shift amount</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Step 2: register view — before */}
+                  <div className="space-y-2">
+                    <div className="text-xs font-bold uppercase tracking-widest text-slate-500">Before ROTL — S-box output</div>
+                    <div className="font-mono text-[10px] text-slate-500">8BC12AAA</div>
+                    {[0, 16].map(offset => (
+                      <div key={offset} className="flex gap-0.5">
+                        {ROTL_DEMO_BITS.slice(offset, offset + 16).map((bit, idx) => {
+                          const gi = offset + idx;
+                          const isN5   = gi < 5;
+                          const isWrap = gi < ROTL_DEMO_N && rotlPhase >= 1;
+                          return (
+                            <div key={gi} className={`w-[22px] h-[22px] rounded text-[9px] font-mono font-bold flex items-center justify-center border transition-all duration-300 ${
+                              isN5   ? 'border-amber-500/80 bg-amber-500/20 text-amber-200' :
+                              isWrap ? 'border-cyan-500/80 bg-cyan-500/20 text-cyan-200' :
+                              bit    ? 'border-slate-600 bg-slate-700/50 text-slate-300' :
+                                       'border-slate-800 bg-black/30 text-slate-600'
+                            }`}>{bit}</div>
+                          );
+                        })}
+                      </div>
+                    ))}
+                    <div className="flex gap-1 text-[9px] text-slate-600 font-mono">
+                      <span className="text-amber-700/60">■ bits 0–4 = n</span>
+                      {rotlPhase >= 1 && <span className="text-cyan-700/60">■ bits 0–16 will wrap →</span>}
+                    </div>
+                  </div>
+
+                  {/* Animated arrow between before/after */}
+                  {rotlPhase >= 2 && (
+                    <div className="flex items-center gap-2 animate-in fade-in duration-300">
+                      <div className="flex-1 h-px bg-cyan-900/40" />
+                      <div className="text-xs font-mono text-cyan-400 font-bold">ROTL({ROTL_DEMO_N}) ↓</div>
+                      <div className="flex-1 h-px bg-cyan-900/40" />
+                    </div>
+                  )}
+
+                  {/* Step 3: register view — after */}
+                  {rotlPhase >= 3 && (
+                    <div className="space-y-2 animate-in fade-in slide-in-from-bottom-2 duration-500">
+                      <div className="text-xs font-bold uppercase tracking-widest text-emerald-500">After ROTL({ROTL_DEMO_N}) — P-box input</div>
+                      <div className="font-mono text-[10px] text-emerald-400/70">55551782</div>
+                      {[0, 16].map(offset => (
+                        <div key={offset} className="flex gap-0.5">
+                          {ROTL_DEMO_ROTLED.slice(offset, offset + 16).map((bit, idx) => (
+                            <div key={idx} className={`w-[22px] h-[22px] rounded text-[9px] font-mono font-bold flex items-center justify-center border ${
+                              bit ? 'border-cyan-500/60 bg-cyan-500/15 text-cyan-200'
+                                  : 'border-slate-800 bg-black/30 text-slate-600'
+                            }`}>{bit}</div>
+                          ))}
+                        </div>
+                      ))}
+                      <div className="text-[10px] text-emerald-600 font-mono mt-1">
+                        ✓ bits 0–14 (wraps) now occupy positions 17–31
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Key takeaway */}
+                  <div className="bg-cyan-500/5 border border-cyan-900/30 rounded-lg p-3 text-xs text-slate-400 leading-relaxed">
+                    <strong className="text-cyan-400">Why this matters:</strong> n changes every round because the S-box output changes every round. The P-box sees a different bit arrangement each time — making the effective routing <em>data-dependent</em> and unpredictable.
+                  </div>
                 </div>
               </div>
             </div>
