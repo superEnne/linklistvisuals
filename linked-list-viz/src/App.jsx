@@ -37,7 +37,8 @@ const S_BOXES = [
 // ============================================================================
 const textToHex = (text) => {
   if (!text) return "";
-  const padded = text.padEnd(8, ' ').substring(0, 8);
+  const blockCount = Math.max(1, Math.ceil(text.length / 8));
+  const padded = text.padEnd(blockCount * 8, ' ');
   let hex = "";
   for (let i = 0; i < padded.length; i++) hex += padded.charCodeAt(i).toString(16).padStart(2, '0').toUpperCase();
   return hex;
@@ -134,6 +135,20 @@ const desCryptTrace = (dataHex, keyHex, isDecrypt = false, useDSR = true) => {
 };
 const desCrypt = (dataHex, keyHex, isDecrypt = false, useDSR = true) =>
   desCryptTrace(dataHex, keyHex, isDecrypt, useDSR).cipher;
+
+// ECB multi-block helpers — each 8-byte (16-hex-char) block encrypted independently
+const encryptMulti = (hexStr, keyHex, useDSR) => {
+  let out = "";
+  for (let i = 0; i < hexStr.length; i += 16)
+    out += desCrypt(hexStr.slice(i, i + 16).padEnd(16, '0'), keyHex, false, useDSR);
+  return out;
+};
+const decryptMulti = (hexStr, keyHex, useDSR) => {
+  let out = "";
+  for (let i = 0; i < hexStr.length; i += 16)
+    out += desCrypt(hexStr.slice(i, i + 16).padEnd(16, '0'), keyHex, true, useDSR);
+  return out;
+};
 
 // ============================================================================
 // ANALYSIS FUNCTIONS
@@ -315,19 +330,27 @@ export default function App() {
 
   // -------- Encrypt --------
   const handleEncrypt = () => {
-    const cleanPlain = sanitizeHex(plainHex || "");
+    // For hex mode: sanitize the raw hex (single block). For text mode: plainHex is already multi-block.
+    const rawHex = (plainHex || "").replace(/[^0-9A-Fa-f]/g, '').toUpperCase();
+    const fullPlainHex = inputMode === 'hex'
+      ? rawHex.padEnd(16, '0').substring(0, 16)   // hex mode stays single-block
+      : (rawHex || "0000000000000000");            // text mode: already padded by textToHex
     const cleanKey = sanitizeHex(keyHex || "");
-    if (inputMode === 'hex') setPlainHex(cleanPlain);
+    if (inputMode === 'hex') setPlainHex(fullPlainHex);
     setKeyHex(cleanKey);
+    // First block for trace/avalanche (always 16 hex chars = 8 bytes)
+    const firstBlock = fullPlainHex.slice(0, 16).padEnd(16, '0');
     try {
-      const trace = desCryptTrace(cleanPlain, cleanKey, false, true);
-      const traceOrig = desCryptTrace(cleanPlain, cleanKey, false, false);
+      // Round traces on first block only
+      const trace = desCryptTrace(firstBlock, cleanKey, false, true);
+      const traceOrig = desCryptTrace(firstBlock, cleanKey, false, false);
       setEncTrace(trace);
       setEncTraceOrig(traceOrig);
-      setLockedPlaintextHex(cleanPlain);
+      setLockedPlaintextHex(fullPlainHex);
       setLockedKey(cleanKey);
-      setCipherOut(trace.cipher);
-      setOrigCipherOut(traceOrig.cipher);
+      // Full multi-block ciphertext
+      setCipherOut(encryptMulti(fullPlainHex, cleanKey, true));
+      setOrigCipherOut(encryptMulti(fullPlainHex, cleanKey, false));
       setDecryptedHexOut("");
       setDecryptedTextOut("");
       setDecTrace(null);
@@ -335,23 +358,22 @@ export default function App() {
       setShowEncTrace(false);
       setShowDecTrace(false);
 
-      // Auto-run avalanche on bit 1
+      // Auto-run avalanche on bit 1 (first block)
       setAvKey(cleanKey);
-      setAvP1(cleanPlain);
+      setAvP1(firstBlock);
       setBitToFlip(1);
-      runAvalancheCalculation(cleanPlain, cleanKey, 0);
+      runAvalancheCalculation(firstBlock, cleanKey, 0);
 
       // Entropy: build a 256-block stream (full last-byte sweep 0x00–0xFF)
-      // giving a complete byte-distribution sample in the meaningful 7.9xxx range.
       let dsrStream = '', origStream = '', plainStream = '';
       for (let i = 0; i < 256; i++) {
-        const variant = sanitizeHex(cleanPlain.slice(0, 14) + i.toString(16).padStart(2, '0'));
+        const variant = sanitizeHex(firstBlock.slice(0, 14) + i.toString(16).padStart(2, '0'));
         dsrStream  += desCrypt(variant, cleanKey, false, true);
         origStream += desCrypt(variant, cleanKey, false, false);
         plainStream += variant;
       }
       setEntropyResult({
-        plaintextHex: cleanPlain,
+        plaintextHex: firstBlock,
         H_plain: shannonEntropy(plainStream),
         H_dsr: shannonEntropy(dsrStream),
         H_orig: shannonEntropy(origStream),
@@ -366,12 +388,17 @@ export default function App() {
   const handleDecrypt = () => {
     if (!cipherOut) return;
     try {
-      const trace = desCryptTrace(cipherOut, lockedKey, true, true);
-      const traceOrig = desCryptTrace(origCipherOut || cipherOut, lockedKey, true, false);
-      setDecTrace(trace);
-      setDecTraceOrig(traceOrig);
-      setDecryptedHexOut(trace.cipher);
-      setDecryptedTextOut(hexToText(trace.cipher));
+      // Decrypt full multi-block ciphertext
+      const fullDecrypted = decryptMulti(cipherOut, lockedKey, true);
+      const fullDecryptedOrig = decryptMulti(origCipherOut || cipherOut, lockedKey, false);
+      // Trace only the first 16-char block for the round-by-round view
+      const trace = desCryptTrace(cipherOut.slice(0, 16).padEnd(16, '0'), lockedKey, true, true);
+      const traceOrig = desCryptTrace((origCipherOut || cipherOut).slice(0, 16).padEnd(16, '0'), lockedKey, true, false);
+      setDecTrace({ ...trace, cipher: fullDecrypted });
+      setDecTraceOrig({ ...traceOrig, cipher: fullDecryptedOrig });
+      setDecryptedHexOut(fullDecrypted);
+      // Strip trailing space-padding used to fill the last block
+      setDecryptedTextOut(hexToText(fullDecrypted).replace(/\s+$/, ''));
     } catch (e) { alert("Decryption error."); }
   };
 
@@ -882,11 +909,11 @@ export default function App() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {inputMode === 'text' ? (
                   <div className="space-y-1">
-                    <label className="text-xs text-slate-400 uppercase tracking-wider font-semibold">Human Plaintext (Max 8 chars)</label>
+                    <label className="text-xs text-slate-400 uppercase tracking-wider font-semibold">Human Plaintext (Max 16 chars)</label>
                     <input type="text" value={plainText} onChange={(e) => setPlainText(e.target.value)}
-                      placeholder="E.g., HELLO" maxLength={8}
+                      placeholder="E.g., HELLO WORLD!!" maxLength={16}
                       className="w-full bg-black/40 border border-cyan-900/50 rounded-lg p-3 text-cyan-300 font-mono focus:border-cyan-500 outline-none" />
-                    {plainHex && <div className="text-xs text-slate-500 mt-1 font-mono">Hex: <span className="text-slate-400">{plainHex.padEnd(16, '0')}</span></div>}
+                    {plainHex && <div className="text-xs text-slate-500 mt-1 font-mono break-all">Hex: <span className="text-slate-400">{plainHex}</span></div>}
                   </div>
                 ) : (
                   <div className="space-y-1">
