@@ -1278,7 +1278,7 @@ export default function App() {
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                       {[
                         { title: 'Original DES', arr: avalancheResult.origVisualArray, count: avalancheResult.origFlipped, pct: avalancheResult.origPercentage, color: 'blue', flipBg: 'bg-blue-500', flipText: 'text-blue-300', border: 'border-blue-500/30' },
-                        { title: 'Modified DES (DSR)', arr: avalancheResult.visualArray, count: avalancheResult.flipped, pct: avalancheResult.percentage, color: 'amber', flipBg: 'bg-cyan-500', flipText: 'text-cyan-300', border: 'border-cyan-500/30' },
+                        { title: 'Modified DES (DSR)', arr: avalancheResult.visualArray, count: avalancheResult.flipped, pct: avalancheResult.percentage, color: 'amber', flipBg: 'bg-amber-500', flipText: 'text-amber-300', border: 'border-amber-500/30' },
                       ].map((m) => (
                         <div key={m.title} className={`bg-black/60 rounded-xl border ${m.border} p-4`}>
                           <div className="flex items-center justify-between mb-3">
@@ -1598,7 +1598,7 @@ export default function App() {
                           <tr className="border-b border-cyan-900/20">
                             <th className="text-left text-slate-500 font-semibold pb-3 pr-4">Plaintext Sample</th>
                             <th className="text-right text-blue-400 font-semibold pb-3 px-4">Original (H)</th>
-                            <th className="text-right text-cyan-400 font-semibold pb-3 px-4">DSR (H)</th>
+                            <th className="text-right text-amber-400 font-semibold pb-3 px-4">DSR (H)</th>
                             <th className="text-right text-slate-400 font-semibold pb-3 pl-4">Δ</th>
                           </tr>
                         </thead>
@@ -1609,7 +1609,7 @@ export default function App() {
                               <tr key={i} className="hover:bg-slate-800/40">
                                 <td className="py-3 pr-4 text-slate-300 font-mono text-xs">"{r.sample}"</td>
                                 <td className="py-3 px-4 text-right text-blue-300 font-mono">{r.origH.toFixed(4)}</td>
-                                <td className="py-3 px-4 text-right text-cyan-300 font-mono">{r.dsrH.toFixed(4)}</td>
+                                <td className="py-3 px-4 text-right text-amber-300 font-mono">{r.dsrH.toFixed(4)}</td>
                                 <td className="py-3 pl-4 text-right">
                                   <span className={`font-mono font-semibold ${d >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
                                     {d >= 0 ? '+' : ''}{d.toFixed(4)}
@@ -1621,8 +1621,8 @@ export default function App() {
                           <tr className="border-t-2 border-slate-700 bg-slate-800/30">
                             <td className="py-3 pr-4 text-slate-300 font-bold text-xs">Average</td>
                             <td className="py-3 px-4 text-right text-blue-400 font-mono font-bold">{avgOrig.toFixed(4)}</td>
-                            <td className="py-3 px-4 text-right text-cyan-400 font-mono font-bold">{avgDsr.toFixed(4)}</td>
-                            <td className="py-3 pl-4 text-right text-cyan-400 font-mono font-bold">{avgDsr >= avgOrig ? '+' : ''}{(avgDsr - avgOrig).toFixed(4)}</td>
+                            <td className="py-3 px-4 text-right text-amber-400 font-mono font-bold">{avgDsr.toFixed(4)}</td>
+                            <td className="py-3 pl-4 text-right text-amber-400 font-mono font-bold">{avgDsr >= avgOrig ? '+' : ''}{(avgDsr - avgOrig).toFixed(4)}</td>
                           </tr>
                         </tbody>
                       </table>
