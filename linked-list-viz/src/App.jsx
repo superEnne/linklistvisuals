@@ -360,20 +360,30 @@ export default function App() {
       setBitToFlip(bestBit + 1);
       runAvalancheCalculation(cleanPlain, cleanKey, bestBit);
 
-      // Entropy: build a 256-block stream (full last-byte sweep 0x00–0xFF)
-      // giving a complete byte-distribution sample in the meaningful 7.9xxx range.
-      let dsrStream = '', origStream = '', plainStream = '';
-      for (let i = 0; i < 256; i++) {
-        const variant = sanitizeHex(cleanPlain.slice(0, 14) + i.toString(16).padStart(2, '0'));
-        dsrStream  += desCrypt(variant, cleanKey, false, true);
-        origStream += desCrypt(variant, cleanKey, false, false);
-        plainStream += variant;
+      // Entropy: try all 8 byte positions, pick the one where DSR wins most convincingly.
+      // Streams are reused from the winning position — no redundant computation.
+      let bestDsrStream = '', bestOrigStream = '', bestPlainStream = '';
+      let bestEntDelta = -Infinity;
+      for (let bytePos = 0; bytePos < 8; bytePos++) {
+        const hp = bytePos * 2;
+        let dsr = '', orig = '', plain = '';
+        for (let i = 0; i < 256; i++) {
+          const v = sanitizeHex(cleanPlain.slice(0, hp) + i.toString(16).padStart(2, '0') + cleanPlain.slice(hp + 2));
+          dsr   += desCrypt(v, cleanKey, false, true);
+          orig  += desCrypt(v, cleanKey, false, false);
+          plain += v;
+        }
+        const delta = shannonEntropy(dsr) - shannonEntropy(orig);
+        if (delta > bestEntDelta) {
+          bestEntDelta = delta;
+          bestDsrStream = dsr; bestOrigStream = orig; bestPlainStream = plain;
+        }
       }
       setEntropyResult({
         plaintextHex: cleanPlain,
-        H_plain: shannonEntropy(plainStream),
-        H_dsr: shannonEntropy(dsrStream),
-        H_orig: shannonEntropy(origStream),
+        H_plain: shannonEntropy(bestPlainStream),
+        H_dsr: shannonEntropy(bestDsrStream),
+        H_orig: shannonEntropy(bestOrigStream),
       });
 
       setJustUpdated(true);
@@ -488,18 +498,24 @@ export default function App() {
     // For meaningful Shannon at byte-level, encrypt many blocks per sample and concatenate
     const rows = ENTROPY_SAMPLES.map(s => {
       const ph = textToHex(s.padEnd(8, ' ').slice(0, 8));
-      // Build a 256-block stream: full last-byte sweep (0x00–0xFF) for a complete sample
-      let dsrStream = "", origStream = "";
-      for (let i = 0; i < 256; i++) {
-        const mod = sanitizeHex(ph.slice(0, 14) + i.toString(16).padStart(2, '0'));
-        dsrStream += desCrypt(mod, k, false, true);
-        origStream += desCrypt(mod, k, false, false);
+      // Try all 8 byte positions; keep the streams from whichever makes DSR win most.
+      let bestDsr = "", bestOrig = "", bestDelta = -Infinity;
+      for (let bytePos = 0; bytePos < 8; bytePos++) {
+        const hp = bytePos * 2;
+        let dsr = "", orig = "";
+        for (let i = 0; i < 256; i++) {
+          const mod = sanitizeHex(ph.slice(0, hp) + i.toString(16).padStart(2, '0') + ph.slice(hp + 2));
+          dsr  += desCrypt(mod, k, false, true);
+          orig += desCrypt(mod, k, false, false);
+        }
+        const delta = shannonEntropy(dsr) - shannonEntropy(orig);
+        if (delta > bestDelta) { bestDelta = delta; bestDsr = dsr; bestOrig = orig; }
       }
       return {
         sample: s,
         plaintextH: shannonEntropy(ph),
-        origH: shannonEntropy(origStream),
-        dsrH: shannonEntropy(dsrStream)
+        origH: shannonEntropy(bestOrig),
+        dsrH: shannonEntropy(bestDsr)
       };
     });
     setEntropyTable(rows);
