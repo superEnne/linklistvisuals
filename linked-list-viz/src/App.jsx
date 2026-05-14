@@ -1235,7 +1235,7 @@ export default function App() {
                       </svg>
                       <div className="flex justify-center gap-6 mt-2 text-xs">
                         <span className="flex items-center gap-2"><span className="w-3 h-3 bg-blue-500 rounded-sm" /> Original DES</span>
-                        <span className="flex items-center gap-2"><span className="w-3 h-3 bg-cyan-500 rounded-sm" /> Modified (DSR)</span>
+                        <span className="flex items-center gap-2"><span className="w-3 h-3 bg-amber-500 rounded-sm" /> Modified (DSR)</span>
                         <span className="flex items-center gap-2"><span className="w-3 h-0.5 bg-emerald-500" /> Ideal 50%</span>
                       </div>
                     </div>
@@ -1400,7 +1400,7 @@ export default function App() {
                       </svg>
                       <div className="flex justify-center gap-6 mt-2 text-xs">
                         <span className="flex items-center gap-2"><span className="w-3 h-3 bg-blue-500 rounded-sm" /> Avg Original DES</span>
-                        <span className="flex items-center gap-2"><span className="w-3 h-3 bg-cyan-500 rounded-sm" /> Avg Modified (DSR)</span>
+                        <span className="flex items-center gap-2"><span className="w-3 h-3 bg-amber-500 rounded-sm" /> Avg Modified (DSR)</span>
                         <span className="flex items-center gap-2"><span className="w-3 h-0.5 bg-emerald-500" /> Ideal 50%</span>
                       </div>
                     </div>
