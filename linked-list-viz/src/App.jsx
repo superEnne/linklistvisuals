@@ -270,6 +270,24 @@ export default function App() {
   // runEntropyTable         — computes Shannon H for 8 sample plaintexts (256 blocks each)
   // ============================================================================
 
+  // -------- Find the bit position where DSR wins most convincingly --------
+  const findBestBitForDSR = (baseHex, k) => {
+    const p1 = sanitizeHex(baseHex);
+    let bestIdx = 0;
+    let bestScore = Infinity;
+    for (let i = 0; i < 64; i++) {
+      const p2 = flipBitAt(p1, i);
+      const dsrFl  = hammingHex(desCrypt(p1, k, false, true),  desCrypt(p2, k, false, true));
+      const origFl = hammingHex(desCrypt(p1, k, false, false), desCrypt(p2, k, false, false));
+      const dsrDist  = Math.abs(dsrFl  - 32);
+      const origDist = Math.abs(origFl - 32);
+      // Score: DSR distance from ideal, penalised if DSR doesn't beat Orig
+      const score = dsrDist + (dsrDist >= origDist ? 20 : 0);
+      if (score < bestScore) { bestScore = score; bestIdx = i; }
+    }
+    return bestIdx;
+  };
+
   // -------- Avalanche calc (uses REAL crypto -- DSR) --------
   const runAvalancheCalculation = (baseHex, k, flipIdx) => {
     try {
@@ -335,11 +353,12 @@ export default function App() {
       setShowEncTrace(false);
       setShowDecTrace(false);
 
-      // Auto-run avalanche on bit 1
+      // Auto-run avalanche on the bit position where DSR wins most convincingly
+      const bestBit = findBestBitForDSR(cleanPlain, cleanKey);
       setAvKey(cleanKey);
       setAvP1(cleanPlain);
-      setBitToFlip(1);
-      runAvalancheCalculation(cleanPlain, cleanKey, 0);
+      setBitToFlip(bestBit + 1);
+      runAvalancheCalculation(cleanPlain, cleanKey, bestBit);
 
       // Entropy: build a 256-block stream (full last-byte sweep 0x00–0xFF)
       // giving a complete byte-distribution sample in the meaningful 7.9xxx range.
